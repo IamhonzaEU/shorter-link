@@ -1,4 +1,4 @@
-# 🔗 Shrorter-Link
+# 🔗 Shorter-Link
 
 Jednoduchý, rychlý a soukromý zkracovač odkazů postavený na **Cloudflare Pages** a **Cloudflare KV** úložišti.
 
@@ -23,4 +23,4 @@ Jednoduchý, rychlý a soukromý zkracovač odkazů postavený na **Cloudflare P
 
 ## 📄 Licence
 
-Tento projekt je šířen pod licencí **MIT**. Více informací naleznete v souboru [LICENSE](LICENSE).
+Tento projekt je šířen pod volnou **MIT licencí**. Podrobnosti naleznete v souboru [LICENSE](LICENSE).
