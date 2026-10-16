@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shorter-Link | Soukromý zkracovač odkazů</title>
+    <title>Shorter-Link | Veřejný zkracovač odkazů</title>
     <style>
         :root {
             --bg-main: #020617; --bg-card: #0f172a; --text-main: #f8fafc;
@@ -32,7 +32,7 @@
         table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
         th { text-align: left; padding-bottom: 0.75rem; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border-color); }
         td { padding: 0.875rem 0; border-bottom: 1px solid var(--border-color); }
-        footer { border-top: 1px solid var(--border-color); padding: 1.5rem 1rem; text-align: center; font-size: 0.75rem; color: var(--text-muted); }
+        footer { border-top: 1px solid var(--border-color); padding: 1.5rem 1rem; text-align: center; font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
         .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1rem 0 1rem; }
         .badge { background-color: var(--border-color); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
         .row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
@@ -42,15 +42,18 @@
 <body>
     <div class="top-nav">
         <div style="font-weight: bold; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;"><span>🔗</span> Shorter-Link</div>
-        <button id="theme-toggle" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;">
-            <span id="theme-icon">🌙</span> <span id="theme-text">Tmavý režim</span>
-        </button>
+        <div style="display: flex; gap: 0.5rem;">
+            <button id="admin-toggle-btn" onclick="toggleAdminPanel()" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;">🔒 Admin</button>
+            <button id="theme-toggle" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;">
+                <span id="theme-icon">🌙</span>
+            </button>
+        </div>
     </div>
 
     <main>
         <div style="text-align: center; margin-bottom: 2rem;">
-            <h1 style="font-size: 2rem; font-weight: 800; margin: 0 0 0.5rem 0;">Lokální zkracovač odkazů</h1>
-            <p style="color: var(--text-muted); font-size: 0.875rem; margin: 0;">Rychlý, soukromý a s okamžitým zápisem do KV</p>
+            <h1 style="font-size: 2rem; font-weight: 800; margin: 0 0 0.5rem 0;">Zkracovač odkazů</h1>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin: 0;">Rychlé a jednoduché zkracování odkazů</p>
         </div>
 
         <div class="card">
@@ -63,57 +66,134 @@
                 <div class="row-grid">
                     <div>
                         <label>Vlastní alias (volitelné)</label>
-                        <input type="text" id="custom-alias" placeholder="ig">
+                        <input type="text" id="custom-alias" placeholder="např. moje-akce">
                     </div>
                     <div>
                         <label>Štítek / Kategorie</label>
-                        <input type="text" id="link-tag" placeholder="např. Sociální sítě">
+                        <input type="text" id="link-tag" placeholder="např. Web">
                     </div>
                 </div>
                 <button type="submit" class="primary">Zkrátit odkaz</button>
             </form>
+            <div id="result-box" style="display: none; margin-top: 1rem; padding: 0.75rem; background: var(--input-bg); border-radius: 0.5rem; text-align: center; font-size: 0.875rem;">
+                Odkaz úspěšně vytvořen: <a id="result-link" href="#" target="_blank" style="color: #3b82f6; font-weight: bold;"></a>
+            </div>
         </div>
 
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h2 style="font-size: 1rem; font-weight: 600; margin: 0;">📋 Přehled vytvořených odkazů</h2>
-                <span id="link-count" class="badge">Načítám...</span>
-            </div>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Krátký odkaz</th>
-                            <th>Cíl</th>
-                            <th>Štítek</th>
-                            <th style="text-align: right;">Akce</th>
-                        </tr>
-                    </thead>
-                    <tbody id="links-table-body">
-                        <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem 0;">Načítám odkazy...</td></tr>
-                    </tbody>
-                </table>
+        <div id="auth-card" class="card" style="display: none; max-width: 400px; margin: 0 auto 2rem auto; text-align: center;">
+            <h2 style="font-size: 1rem; font-weight: 600; margin-top: 0; color: #3b82f6;">🔐 Administrátorský přístup</h2>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">Zadejte heslo pro zobrazení tabulky a mazání.</p>
+            <input type="password" id="admin-password" placeholder="Zadejte heslo...">
+            <button onclick="login()" class="primary">Odemknout</button>
+        </div>
+
+        <div id="admin-content" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="font-size: 1rem; font-weight: 600; margin: 0;">📋 Přehled vytvořených odkazů (Admin)</h2>
+                    <span id="link-count" class="badge">Načítám...</span>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Krátký odkaz</th>
+                                <th>Cíl</th>
+                                <th>Štítek</th>
+                                <th style="text-align: right;">Akce</th>
+                            </tr>
+                        </thead>
+                        <tbody id="links-table-body">
+                            <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem 0;">Načítám odkazy...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
 
     <footer>
-        <p style="font-weight: 500; margin: 0 0 0.25rem 0;">Shorter-Link • Doména: link.iamhonza.eu</p>
-        <p style="margin: 0;">V případě zneužití kontaktujte: <a href="mailto:report@iamhonza.eu" style="color: #3b82f6; text-decoration: none;">report@iamhonza.eu</a></p>
+        <p style="font-weight: 500; margin: 0 0 0.5rem 0;">
+            Shorter-Link • Doména: link.iamhonza.eu • 
+            <a href="https://github.com/IamhonzaEU/shrorter-link" target="_blank" style="color: #3b82f6; text-decoration: none;">GitHub Source Code</a>
+        </p>
+        <p style="color: var(--text-muted); margin: 0 0 0.5rem 0; font-size: 0.7rem;">
+            <strong>Právní doložka:</strong> Provozovatel nenesete žádnou odpovědnost za obsah zkrácených odkazů. Veškerou odpovědnost nese uživatel, který odkaz vytvořil. Služba nesmí být využívána k šíření spamu, malware nebo nelegálního obsahu. V případě zneužití kontaktujte: <a href="mailto:report@iamhonza.eu" style="color: #3b82f6; text-decoration: none;">report@iamhonza.eu</a>
+        </p>
+        <p style="color: var(--text-muted); margin: 0; font-size: 0.7rem;">
+            Ochrana soukromí: Služba neukládá žádné osobní údaje ani IP adresy návštěvníků klikajících na odkazy. Ukládá se pouze cílová URL adresa a vygenerovaný alias.
+        </p>
     </footer>
 
     <script>
+        let password = localStorage.getItem('iamhonza_pwd') || '';
+
+        if (password) {
+            checkAutoLogin();
+        }
+
+        function toggleAdminPanel() {
+            if (document.getElementById('admin-content').style.display === 'block' || document.getElementById('auth-card').style.display === 'block') {
+                document.getElementById('auth-card').style.display = 'none';
+                document.getElementById('admin-content').style.display = 'none';
+            } else {
+                if (password) {
+                    loadLinks();
+                } else {
+                    document.getElementById('auth-card').style.display = 'block';
+                }
+            }
+        }
+
+        function login() {
+            const pwdInput = document.getElementById('admin-password').value.trim();
+            verifyAndUnlock(pwdInput);
+        }
+
+        async function checkAutoLogin() {
+            const res = await fetch('/api/links', {
+                headers: { 'Authorization': `Bearer ${password}` }
+            });
+            if (res.ok) {
+                document.getElementById('auth-card').style.display = 'none';
+                document.getElementById('admin-content').style.display = 'block';
+                loadLinks();
+            } else {
+                localStorage.removeItem('iamhonza_pwd');
+                password = '';
+            }
+        }
+
+        async function verifyAndUnlock(pwd) {
+            try {
+                const res = await fetch('/api/links', {
+                    headers: { 'Authorization': `Bearer ${pwd}` }
+                });
+                if (res.ok) {
+                    password = pwd;
+                    localStorage.setItem('iamhonza_pwd', pwd);
+                    document.getElementById('auth-card').style.display = 'none';
+                    document.getElementById('admin-content').style.display = 'block';
+                    loadLinks();
+                } else {
+                    alert('Nesprávné heslo!');
+                    localStorage.removeItem('iamhonza_pwd');
+                }
+            } catch(e) {
+                alert('Chyba připojení k serveru.');
+            }
+        }
+
         const themeBtn = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
-        const themeText = document.getElementById('theme-text');
 
         function setTheme(isDark) {
             if (isDark) {
                 document.documentElement.classList.remove('light'); document.documentElement.classList.add('dark');
-                themeIcon.textContent = '🌙'; themeText.textContent = 'Tmavý režim';
+                themeIcon.textContent = '🌙';
             } else {
                 document.documentElement.classList.remove('dark'); document.documentElement.classList.add('light');
-                themeIcon.textContent = '☀️'; themeText.textContent = 'Světlý režim';
+                themeIcon.textContent = '☀️';
             }
         }
         const savedTheme = localStorage.getItem('iamhonza_theme');
@@ -126,7 +206,9 @@
 
         async function loadLinks() {
             try {
-                const res = await fetch('/api/links');
+                const res = await fetch('/api/links', {
+                    headers: { 'Authorization': `Bearer ${password}` }
+                });
                 const links = await res.json();
                 const tbody = document.getElementById('links-table-body');
                 const countBadge = document.getElementById('link-count');
@@ -143,7 +225,7 @@
                 keys.forEach(alias => {
                     const data = links[alias];
                     const targetUrl = typeof data === 'object' ? data.url : data;
-                    const tag = typeof data === 'object' ? (data.tag || 'Osobní') : 'Osobní';
+                    const tag = typeof data === 'object' ? (data.tag || 'Veřejné') : 'Veřejné';
                     const fullShortUrl = `https://link.iamhonza.eu/${alias}`;
 
                     const tr = document.createElement('tr');
@@ -165,7 +247,7 @@
             e.preventDefault();
             const targetUrl = document.getElementById('target-url').value.trim();
             let alias = document.getElementById('custom-alias').value.trim();
-            const tag = document.getElementById('link-tag').value.trim() || 'Osobní';
+            const tag = document.getElementById('link-tag').value.trim() || 'Veřejné';
 
             if (!alias) {
                 alias = Math.random().toString(36).substring(2, 7);
@@ -180,7 +262,18 @@
 
             if (res.ok) {
                 document.getElementById('link-form').reset();
-                loadLinks();
+                const box = document.getElementById('result-box');
+                const linkEl = document.getElementById('result-link');
+                const fullUrl = `https://link.iamhonza.eu/${alias}`;
+                linkEl.href = fullUrl;
+                linkEl.textContent = fullUrl;
+                box.style.display = 'block';
+
+                if (document.getElementById('admin-content').style.display === 'block') {
+                    loadLinks();
+                }
+            } else if (res.status === 409) {
+                alert(`Chyba: Zkratka "/${alias}" již existuje! Zvolte prosím jiný alias.`);
             } else {
                 alert('Chyba při ukládání odkazu.');
             }
@@ -188,7 +281,10 @@
 
         async function deleteLink(alias) {
             if (confirm(`Opravdu chcete smazat odkaz /${alias}?`)) {
-                const res = await fetch(`/api/links?alias=${alias}`, { method: 'DELETE' });
+                const res = await fetch(`/api/links?alias=${alias}`, { 
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${password}` }
+                });
                 if (res.ok) {
                     loadLinks();
                 } else {
@@ -196,8 +292,6 @@
                 }
             }
         }
-
-        loadLinks();
     </script>
 </body>
 </html>
