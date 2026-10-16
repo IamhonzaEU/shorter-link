@@ -3,199 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shorter-Link | Lokální zkracovač odkazů</title>
-    <!-- Vlastní CSS styly přímo v kódu – žádné blokování přes Cloudflare -->
+    <title>Shorter-Link | Soukromý zkracovač odkazů</title>
     <style>
         :root {
-            --bg-main: #020617;
-            --bg-card: #0f172a;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #1e293b;
-            --input-bg: #020617;
-            --accent: #2563eb;
-            --accent-hover: #1d4ed8;
+            --bg-main: #020617; --bg-card: #0f172a; --text-main: #f8fafc;
+            --text-muted: #94a3b8; --border-color: #1e293b; --input-bg: #020617;
+            --accent: #2563eb; --accent-hover: #1d4ed8;
         }
         .light {
-            --bg-main: #f8fafc;
-            --bg-card: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --input-bg: #f8fafc;
-            --accent: #2563eb;
-            --accent-hover: #1d4ed8;
+            --bg-main: #f8fafc; --bg-card: #ffffff; --text-main: #1e293b;
+            --text-muted: #64748b; --border-color: #e2e8f0; --input-bg: #f8fafc;
         }
         body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-family: system-ui, -apple-system, sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            background-color: var(--bg-main); color: var(--text-main);
+            font-family: system-ui, -apple-system, sans-serif; margin: 0;
+            display: flex; flex-direction: column; min-height: 100vh;
             transition: background-color 0.3s, color 0.3s;
         }
-        header, main, footer {
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
-            box-sizing: border-box;
-        }
-        main {
-            flex-grow: 1;
-            padding: 2rem 1rem;
-        }
-        .card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        input, button {
-            font-family: inherit;
-            box-sizing: border-box;
-        }
-        input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            border-radius: 0.75rem;
-            outline: none;
-            font-size: 0.875rem;
-            margin-top: 0.375rem;
-            margin-bottom: 1rem;
-        }
-        input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-        }
-        label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-        }
-        button.primary {
-            width: 100%;
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 0.875rem;
-            font-weight: 600;
-            border-radius: 0.75rem;
-            cursor: pointer;
-            transition: background 0.2s;
-            font-size: 0.875rem;
-        }
-        button.primary:hover {
-            background-color: var(--accent-hover);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.875rem;
-        }
-        th {
-            text-align: left;
-            padding-bottom: 0.75rem;
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border-color);
-        }
-        td {
-            padding: 0.875rem 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-        footer {
-            border-top: 1px solid var(--border-color);
-            padding: 1.5rem 1rem;
-            text-align: center;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-        .top-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 1rem 0 1rem;
-        }
-        .badge {
-            background-color: var(--border-color);
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        .row-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-        @media(max-width: 600px) {
-            .row-grid { grid-template-columns: 1fr; }
-        }
+        header, main, footer { max-width: 800px; width: 100%; margin: 0 auto; box-sizing: border-box; }
+        main { flex-grow: 1; padding: 2rem 1rem; }
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 1rem; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        input, button { font-family: inherit; box-sizing: border-box; }
+        input { width: 100%; padding: 0.75rem 1rem; background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.75rem; outline: none; font-size: 0.875rem; margin-top: 0.375rem; margin-bottom: 1rem; }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
+        label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+        button.primary { width: 100%; background-color: var(--accent); color: white; border: none; padding: 0.875rem; font-weight: 600; border-radius: 0.75rem; cursor: pointer; transition: background 0.2s; font-size: 0.875rem; }
+        button.primary:hover { background-color: var(--accent-hover); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        th { text-align: left; padding-bottom: 0.75rem; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border-color); }
+        td { padding: 0.875rem 0; border-bottom: 1px solid var(--border-color); }
+        footer { border-top: 1px solid var(--border-color); padding: 1.5rem 1rem; text-align: center; font-size: 0.75rem; color: var(--text-muted); }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1rem 0 1rem; }
+        .badge { background-color: var(--border-color); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+        .row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media(max-width: 600px) { .row-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-
-    <!-- Horní lišta -->
     <div class="top-nav">
-        <div style="font-weight: bold; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
-            <span>🔗</span> Shorter-Link
-        </div>
+        <div style="font-weight: bold; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;"><span>🔗</span> Shorter-Link</div>
         <button id="theme-toggle" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;">
             <span id="theme-icon">🌙</span> <span id="theme-text">Tmavý režim</span>
         </button>
     </div>
 
-    <!-- Hlavní obsah -->
     <main>
         <div style="text-align: center; margin-bottom: 2rem;">
             <h1 style="font-size: 2rem; font-weight: 800; margin: 0 0 0.5rem 0;">Lokální zkracovač odkazů</h1>
-            <p style="color: var(--text-muted); font-size: 0.875rem; margin: 0;">Bezpečný, rychlý a uložený přímo ve vašem prohlížeči</p>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin: 0;">Rychlý, soukromý a s okamžitým zápisem do KV</p>
         </div>
 
-        <!-- Formulář -->
         <div class="card">
-            <h2 style="font-size: 1rem; font-weight: 600; margin-top: 0; margin-bottom: 1.25rem; color: #3b82f6;">
-                ⚡ Vytvořit nový zkrácený odkaz
-            </h2>
-            
+            <h2 style="font-size: 1rem; font-weight: 600; margin-top: 0; margin-bottom: 1.25rem; color: #3b82f6;">⚡ Vytvořit nový zkrácený odkaz</h2>
             <form id="link-form">
                 <div>
                     <label>Cílová URL adresa *</label>
-                    <input type="url" id="target-url" required placeholder="https://priklad.cz/velmi-dlouha-adresa">
+                    <input type="url" id="target-url" required placeholder="https://priklad.cz/dlouha-adresa">
                 </div>
-
                 <div class="row-grid">
                     <div>
                         <label>Vlastní alias (volitelné)</label>
-                        <input type="text" id="custom-alias" placeholder="moje-video">
+                        <input type="text" id="custom-alias" placeholder="ig">
                     </div>
                     <div>
                         <label>Štítek / Kategorie</label>
-                        <input type="text" id="link-tag" placeholder="např. Video, Osobní">
+                        <input type="text" id="link-tag" placeholder="např. Sociální sítě">
                     </div>
                 </div>
-
                 <button type="submit" class="primary">Zkrátit odkaz</button>
             </form>
         </div>
 
-        <!-- Přehled odkazů -->
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h2 style="font-size: 1rem; font-weight: 600; margin: 0;">📋 Přehled zkrácených odkazů</h2>
-                <span id="link-count" class="badge">0 odkazů</span>
+                <h2 style="font-size: 1rem; font-weight: 600; margin: 0;">📋 Přehled vytvořených odkazů</h2>
+                <span id="link-count" class="badge">Načítám...</span>
             </div>
-
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -203,63 +86,82 @@
                             <th>Krátký odkaz</th>
                             <th>Cíl</th>
                             <th>Štítek</th>
-                            <th style="text-align: center;">Kliknutí</th>
                             <th style="text-align: right;">Akce</th>
                         </tr>
                     </thead>
                     <tbody id="links-table-body">
-                        <tr>
-                            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem 0;">Zatím zde nejsou žádné zkrácené odkazy.</td>
-                        </tr>
+                        <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem 0;">Načítám odkazy...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </main>
 
-    <!-- Patička -->
     <footer>
-        <p style="font-weight: 500; margin: 0 0 0.25rem 0;">Shorter-Link • 100% Soukromý & Lokální</p>
-        <p style="margin: 0 0 0.25rem 0;">Provozovatel nenesen právní odpovědnost za obsah cizích odkazů. V případě zneužití kontaktujte: <a href="mailto:report@iamhonza.eu" style="color: #3b82f6; text-decoration: none;">report@iamhonza.eu</a></p>
-        <p style="color: var(--text-muted); margin: 0;">Doména: link.iamhonza.eu</p>
+        <p style="font-weight: 500; margin: 0 0 0.25rem 0;">Shorter-Link • Doména: link.iamhonza.eu</p>
+        <p style="margin: 0;">V případě zneužití kontaktujte: <a href="mailto:report@iamhonza.eu" style="color: #3b82f6; text-decoration: none;">report@iamhonza.eu</a></p>
     </footer>
 
-    <!-- Skripty -->
     <script>
-        const STORAGE_KEY = 'iamhonza_links';
-        const THEME_KEY = 'iamhonza_theme';
-
-        // Téma (Dark / Light)
         const themeBtn = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
         const themeText = document.getElementById('theme-text');
 
         function setTheme(isDark) {
             if (isDark) {
-                document.documentElement.classList.remove('light');
-                document.documentElement.classList.add('dark');
-                themeIcon.textContent = '🌙';
-                themeText.textContent = 'Tmavý režim';
+                document.documentElement.classList.remove('light'); document.documentElement.classList.add('dark');
+                themeIcon.textContent = '🌙'; themeText.textContent = 'Tmavý režim';
             } else {
-                document.documentElement.classList.remove('dark');
-                document.documentElement.classList.add('light');
-                themeIcon.textContent = '☀️';
-                themeText.textContent = 'Světlý režim';
+                document.documentElement.classList.remove('dark'); document.documentElement.classList.add('light');
+                themeIcon.textContent = '☀️'; themeText.textContent = 'Světlý režim';
             }
         }
-
-        const savedTheme = localStorage.getItem(THEME_KEY);
-        const isDarkDefault = savedTheme === null ? true : savedTheme === 'dark';
-        setTheme(isDarkDefault);
-
+        const savedTheme = localStorage.getItem('iamhonza_theme');
+        setTheme(savedTheme === null ? true : savedTheme === 'dark');
         themeBtn.addEventListener('click', () => {
             const currentDark = document.documentElement.classList.contains('dark');
             setTheme(!currentDark);
-            localStorage.setItem(THEME_KEY, !currentDark ? 'dark' : 'light');
+            localStorage.setItem('iamhonza_theme', !currentDark ? 'dark' : 'light');
         });
 
-        // Správa odkazů
-        document.getElementById('link-form').addEventListener('submit', function(e) {
+        async function loadLinks() {
+            try {
+                const res = await fetch('/api/links');
+                const links = await res.json();
+                const tbody = document.getElementById('links-table-body');
+                const countBadge = document.getElementById('link-count');
+                tbody.innerHTML = '';
+                const keys = Object.keys(links);
+
+                countBadge.textContent = `${keys.length} ${keys.length === 1 ? 'odkaz' : keys.length >= 2 && keys.length <= 4 ? 'odkazy' : 'odkazů'}`;
+
+                if (keys.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem 0;">Zatím zde nejsou žádné odkazy.</td></tr>`;
+                    return;
+                }
+
+                keys.forEach(alias => {
+                    const data = links[alias];
+                    const targetUrl = typeof data === 'object' ? data.url : data;
+                    const tag = typeof data === 'object' ? (data.tag || 'Osobní') : 'Osobní';
+                    const fullShortUrl = `https://link.iamhonza.eu/${alias}`;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="font-weight: 500;"><a href="${fullShortUrl}" target="_blank" style="color: #3b82f6; text-decoration: none;">/${alias}</a></td>
+                        <td style="color: var(--text-muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${targetUrl}">${targetUrl}</td>
+                        <td><span class="badge">${tag}</span></td>
+                        <td style="text-align: right;">
+                            <button onclick="navigator.clipboard.writeText('${fullShortUrl}').then(()=>alert('Zkopírováno!'))" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.5rem;">Kopírovat</button>
+                            <button onclick="deleteLink('${alias}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:600; font-size:0.75rem;">Smazat</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        document.getElementById('link-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const targetUrl = document.getElementById('target-url').value.trim();
             let alias = document.getElementById('custom-alias').value.trim();
@@ -270,63 +172,28 @@
             }
             alias = alias.replace(/[\s\/]+/g, '-').toLowerCase();
 
-            let links = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-            links[alias] = {
-                url: targetUrl,
-                tag: tag,
-                clicks: 0,
-                created: new Date().toLocaleDateString('cs-CS')
-            };
+            const res = await fetch('/api/links', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ alias, url: targetUrl, tag })
+            });
 
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
-            document.getElementById('link-form').reset();
-            loadLinks();
+            if (res.ok) {
+                document.getElementById('link-form').reset();
+                loadLinks();
+            } else {
+                alert('Chyba při ukládání odkazu.');
+            }
         });
 
-        function loadLinks() {
-            const links = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-            const tbody = document.getElementById('links-table-body');
-            const countBadge = document.getElementById('link-count');
-            tbody.innerHTML = '';
-            const keys = Object.keys(links);
-
-            countBadge.textContent = `${keys.length} ${keys.length === 1 ? 'odkaz' : keys.length >= 2 && keys.length <= 4 ? 'odkazy' : 'odkazů'}`;
-
-            if (keys.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem 0;">Zatím zde nejsou žádné zkrácené odkazy.</td></tr>`;
-                return;
-            }
-
-            keys.forEach(alias => {
-                const data = links[alias];
-                const fullShortUrl = `https://link.iamhonza.eu/${alias}`;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="font-weight: 500;"><a href="${fullShortUrl}" target="_blank" style="color: #3b82f6; text-decoration: none;">/${alias}</a></td>
-                    <td style="color: var(--text-muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${data.url}">${data.url}</td>
-                    <td><span class="badge">${data.tag}</span></td>
-                    <td style="text-align: center; color: var(--text-muted);">${data.clicks}</td>
-                    <td style="text-align: right;">
-                        <button onclick="copyToClipboard('${fullShortUrl}')" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.5rem;">Kopírovat</button>
-                        <button onclick="deleteLink('${alias}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:600; font-size:0.75rem;">Smazat</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Krátký odkaz byl zkopírován do schránky!');
-            });
-        }
-
-        function deleteLink(alias) {
+        async function deleteLink(alias) {
             if (confirm(`Opravdu chcete smazat odkaz /${alias}?`)) {
-                let links = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-                delete links[alias];
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
-                loadLinks();
+                const res = await fetch(`/api/links?alias=${alias}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadLinks();
+                } else {
+                    alert('Chyba při mazání odkazu.');
+                }
             }
         }
 
