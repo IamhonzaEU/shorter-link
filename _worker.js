@@ -13,17 +13,21 @@ export default {
         if (!isAuthed) {
           return new Response(JSON.stringify({ error: 'Přístup odepřen.' }), { status: 403, headers: { 'Content-Type': 'application/json' } });
         }
-        const list = await kv.list();
-        const links = {};
-        for (const key of list.keys) {
-          const val = await kv.get(key.name);
-          try {
-            links[key.name] = JSON.parse(val);
-          } catch {
-            links[key.name] = { url: val, tag: 'Osobní' };
+        try {
+          const list = await kv.list();
+          const links = {};
+          for (const key of list.keys) {
+            const val = await kv.get(key.name);
+            try {
+              links[key.name] = JSON.parse(val);
+            } catch {
+              links[key.name] = { url: val, tag: 'Osobní' };
+            }
           }
+          return new Response(JSON.stringify(links), { headers: { 'Content-Type': 'application/json' } });
+        } catch (e) {
+          return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
         }
-        return new Response(JSON.stringify(links), { headers: { 'Content-Type': 'application/json' } });
       }
 
       if (request.method === 'POST') {
@@ -41,7 +45,7 @@ export default {
           await kv.put(data.alias, JSON.stringify({ url: data.url, tag: data.tag || 'Veřejné' }));
           return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
         } catch (e) {
-          return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+          return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
         }
       }
 

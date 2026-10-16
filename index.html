@@ -44,6 +44,7 @@
         <div style="font-weight: bold; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;"><span>🔗</span> Shorter-Link</div>
         <div style="display: flex; gap: 0.5rem;">
             <button id="admin-toggle-btn" onclick="toggleAdminPanel()" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;">🔒 Admin</button>
+            <button id="logout-btn" onclick="logout()" style="display: none; background: #ef4444; border: none; color: white; padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;">Odhlásit</button>
             <button id="theme-toggle" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;">
                 <span id="theme-icon">🌙</span>
             </button>
@@ -133,14 +134,18 @@
         }
 
         function toggleAdminPanel() {
-            if (document.getElementById('admin-content').style.display === 'block' || document.getElementById('auth-card').style.display === 'block') {
-                document.getElementById('auth-card').style.display = 'none';
-                document.getElementById('admin-content').style.display = 'none';
+            const adminContent = document.getElementById('admin-content');
+            const authCard = document.getElementById('auth-card');
+            
+            if (adminContent.style.display === 'block' || authCard.style.display === 'block') {
+                authCard.style.display = 'none';
+                adminContent.style.display = 'none';
             } else {
                 if (password) {
+                    adminContent.style.display = 'block';
                     loadLinks();
                 } else {
-                    document.getElementById('auth-card').style.display = 'block';
+                    authCard.style.display = 'block';
                 }
             }
         }
@@ -150,13 +155,22 @@
             verifyAndUnlock(pwdInput);
         }
 
+        function logout() {
+            localStorage.removeItem('iamhonza_pwd');
+            password = '';
+            document.getElementById('admin-content').style.display = 'none';
+            document.getElementById('auth-card').style.display = 'none';
+            document.getElementById('logout-btn').style.display = 'none';
+            document.getElementById('admin-toggle-btn').style.display = 'block';
+            alert('Byl jste odhlášen.');
+        }
+
         async function checkAutoLogin() {
             const res = await fetch('/api/links', {
                 headers: { 'Authorization': `Bearer ${password}` }
             });
             if (res.ok) {
-                document.getElementById('auth-card').style.display = 'none';
-                document.getElementById('admin-content').style.display = 'block';
+                document.getElementById('logout-btn').style.display = 'block';
                 loadLinks();
             } else {
                 localStorage.removeItem('iamhonza_pwd');
@@ -174,6 +188,7 @@
                     localStorage.setItem('iamhonza_pwd', pwd);
                     document.getElementById('auth-card').style.display = 'none';
                     document.getElementById('admin-content').style.display = 'block';
+                    document.getElementById('logout-btn').style.display = 'block';
                     loadLinks();
                 } else {
                     alert('Nesprávné heslo!');
@@ -209,6 +224,10 @@
                 const res = await fetch('/api/links', {
                     headers: { 'Authorization': `Bearer ${password}` }
                 });
+                if (!res.ok) {
+                    if (res.status === 403) logout();
+                    return;
+                }
                 const links = await res.json();
                 const tbody = document.getElementById('links-table-body');
                 const countBadge = document.getElementById('link-count');
@@ -256,7 +275,7 @@
 
             const res = await fetch('/api/links', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'Application/json' },
                 body: JSON.stringify({ alias, url: targetUrl, tag })
             });
 
@@ -281,14 +300,18 @@
 
         async function deleteLink(alias) {
             if (confirm(`Opravdu chcete smazat odkaz /${alias}?`)) {
-                const res = await fetch(`/api/links?alias=${alias}`, { 
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${password}` }
-                });
-                if (res.ok) {
-                    loadLinks();
-                } else {
-                    alert('Chyba při mazání odkazu.');
+                try {
+                    const res = await fetch(`/api/links?alias=${encodeURIComponent(alias)}`, { 
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${password}` }
+                    });
+                    if (res.ok) {
+                        loadLinks();
+                    } else {
+                        alert('Chyba při mazání odkazu.');
+                    }
+                } catch(e) {
+                    alert('Chyba připojení k serveru.');
                 }
             }
         }
