@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shorter-Link — link.iamhonza.eu</title>
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -12,501 +12,238 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                        brand: { 50: '#f0fdf4', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' }
                     }
                 }
             }
         }
     </script>
-    <!-- FontAwesome Ikony -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- QR Code Generator - 100% lokální knihovna -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script>
-        // Inicializace Dark Mode ihned při načtení
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
 </head>
-<body class="h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-200 flex flex-col">
+<body class="h-full bg-slate-900 text-slate-100 flex flex-col antialiased selection:bg-brand-500 selection:text-slate-950">
 
-    <!-- Navbar -->
-    <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
-                    <i class="fa-solid fa-link text-lg"></i>
+    <!-- Hlavička -->
+    <header class="border-b border-slate-800 bg-slate-950/50 backdrop-blur sticky top-0 z-10">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 font-bold text-xl">
+                    🔗
                 </div>
                 <div>
-                    <span class="font-bold text-lg tracking-tight">Shorter-Link</span>
-                    <span class="text-xs block text-slate-500 dark:text-slate-400 font-mono">link.iamhonza.eu</span>
+                    <h1 class="font-bold text-lg leading-tight">Shorter-Link</h1>
+                    <p class="text-xs text-slate-400">Soukromý lokální zkracovač odkazů</p>
                 </div>
             </div>
-            
-            <div class="flex items-center space-x-3">
-                <span class="text-[11px] bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-medium px-2.5 py-1 rounded-md hidden sm:flex items-center space-x-1">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span>Privacy First</span>
-                </span>
-
-                <!-- Admin Status / Login Tlačítko -->
-                <div id="adminAuthContainer">
-                    <button onclick="openAdminModal()" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 px-3 py-2 rounded-xl transition flex items-center space-x-1.5 font-medium">
-                        <i class="fa-solid fa-user-lock text-brand-500"></i>
-                        <span>Admin</span>
-                    </button>
-                </div>
-
-                <!-- Dark Mode Toggle Button -->
-                <button onclick="toggleDarkMode()" aria-label="Přepnout tmavý režim" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 transition text-slate-600 dark:text-slate-300">
-                    <i id="themeIcon" class="fa-solid fa-moon text-base dark:hidden"></i>
-                    <i class="fa-solid fa-sun text-base hidden dark:block text-amber-400"></i>
-                </button>
+            <div class="flex items-center gap-2 text-xs bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700">
+                <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+                <span class="text-slate-300">Bezpečná lokální paměť</span>
             </div>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        
-        <!-- Přehledové karty -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Celkem odkazů</p>
-                    <h3 id="statTotalLinks" class="text-2xl font-bold mt-1">0</h3>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-link"></i>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Celkem kliknutí</p>
-                    <h3 id="statTotalClicks" class="text-2xl font-bold mt-1">0</h3>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-chart-line"></i>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Aktivní doména</p>
-                    <h3 class="text-base sm:text-lg font-bold mt-1 font-mono text-brand-600 dark:text-brand-400 truncate">link.iamhonza.eu</h3>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-globe"></i>
-                </div>
-            </div>
-        </div>
+    <!-- Hlavní obsah -->
+    <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full space-y-8">
 
         <!-- Formulář pro vytvoření odkazu -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 sm:p-8">
-            <h2 class="text-lg font-bold mb-4 flex items-center space-x-2">
-                <i class="fa-solid fa-plus-circle text-brand-500"></i>
-                <span>Vytvořit nový zkrácený odkaz</span>
-            </h2>
+        <section class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-brand-500/5 rounded-full blur-3xl pointer-events-none"></div>
             
-            <form id="shortenForm" onsubmit="handleCreateLink(event)" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Cílová URL -->
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase mb-1">Cílová URL adresa *</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                                <i class="fa-solid fa-globe"></i>
-                            </span>
-                            <input type="url" id="targetUrl" required placeholder="https://youtube.com/watch?v=..." 
-                                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
-                        </div>
-                    </div>
+            <h2 class="text-base font-semibold mb-4 flex items-center gap-2 text-slate-200">
+                <span>➕</span> Vytvořit nový zkrácený odkaz
+            </h2>
 
-                    <!-- Vlastní Alias -->
+            <form id="shortenForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Cílová URL adresa *</label>
+                    <input type="url" id="targetUrl" required placeholder="https://priklad.cz/dlouha-adresa" 
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase mb-1">Vlastní alias (volitelné)</label>
-                        <div class="flex rounded-xl shadow-sm">
-                            <span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 text-xs font-mono">
-                                link.iamhonza.eu/
-                            </span>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Vlastní alias (volitelné)</label>
+                        <div class="flex items-center bg-slate-900 border border-slate-700 rounded-xl overflow-hidden focus-within:border-brand-500 transition">
+                            <span class="pl-3 pr-1 text-xs text-slate-500 select-none">/</span>
                             <input type="text" id="customAlias" placeholder="moje-video" 
-                                class="flex-1 min-w-0 block w-full px-3 py-3 rounded-none rounded-r-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm font-mono">
+                                class="w-full bg-transparent py-2.5 pr-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none">
                         </div>
                     </div>
 
-                    <!-- Štítek / Kategorie -->
                     <div>
-                        <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase mb-1">Štítek / Kategorie</label>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Štítek / Kategorie</label>
                         <input type="text" id="linkTag" placeholder="např. Video, Osobní, Projekt" 
-                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
                     </div>
                 </div>
 
-                <div class="flex justify-end pt-2">
-                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-medium px-6 py-3 rounded-xl shadow-lg shadow-brand-500/20 transition flex items-center space-x-2 text-sm">
-                        <i class="fa-solid fa-scissors"></i>
-                        <span>Zkrátit odkaz</span>
-                    </button>
-                </div>
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-slate-950 font-semibold py-3 rounded-xl transition shadow-lg shadow-brand-600/20 text-sm flex items-center justify-center gap-2 cursor-pointer">
+                    <span>⚡ Zkrátit odkaz</span>
+                </button>
             </form>
-        </div>
+        </section>
 
-        <!-- Tabulka odkazů -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <h3 class="font-bold text-lg flex items-center space-x-2">
-                    <i class="fa-solid fa-list text-brand-500"></i>
-                    <span>Přehled zkrácených odkazů</span>
-                </h3>
-                <div class="flex items-center space-x-2 w-full sm:w-auto">
-                    <div class="relative w-full sm:w-64">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                            <i class="fa-solid fa-search text-xs"></i>
-                        </span>
-                        <input type="text" id="searchInput" oninput="renderLinks()" placeholder="Hledat v odkazech..." 
-                            class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 text-xs">
-                    </div>
+        <!-- Seznam odkazů -->
+        <section class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                    <h2 class="text-base font-semibold text-slate-200">📋 Přehled zkrácených odkazů</h2>
+                    <p class="text-xs text-slate-400">Odkazy uložené v tomto prohlížeči</p>
+                </div>
+                <div class="w-full sm:w-auto">
+                    <input type="text" id="searchInput" placeholder="Hledat v odkazech..." 
+                        class="w-full sm:w-64 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
                 </div>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-50 dark:bg-slate-900/50 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
-                            <th class="py-3 px-6">Krátký odkaz & Cíl</th>
-                            <th class="py-3 px-4">Štítek</th>
-                            <th class="py-3 px-4">Kliknutí</th>
-                            <th class="py-3 px-4">Vytvořeno</th>
-                            <th class="py-3 px-6 text-right">Akce</th>
+                        <tr class="border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+                            <th class="py-3 px-4 font-medium">Krátký odkaz & Cíl</th>
+                            <th class="py-3 px-4 font-medium">Štítek</th>
+                            <th class="py-3 px-4 font-medium">Kliknutí</th>
+                            <th class="py-3 px-4 font-medium">Vytvořeno</th>
+                            <th class="py-3 px-4 font-medium text-right">Akce</th>
                         </tr>
                     </thead>
-                    <tbody id="linksTableBody" class="divide-y divide-slate-200 dark:divide-slate-700 text-sm">
-                        <!-- Generováno skriptem -->
+                    <tbody id="linksTableBody" class="divide-y divide-slate-800/60 text-sm">
+                        <!-- Generováno dynamicky přes JS -->
                     </tbody>
                 </table>
             </div>
-        </div>
+            <div id="emptyState" class="text-center py-12 text-slate-500 text-sm hidden">
+                Zatím zde nejsou žádné zkrácené odkazy.
+            </div>
+        </section>
+
     </main>
 
-    <!-- Footer -->
-    <footer class="mt-auto py-6 border-t border-slate-200 dark:border-slate-700 text-center text-xs text-slate-500 dark:text-slate-400">
-        <p>Shorter-Link &bull; 100% Soukromý & Lokální &bull; <span class="font-mono text-brand-600 dark:text-brand-400">link.iamhonza.eu</span></p>
+    <!-- Patička -->
+    <footer class="border-t border-slate-800/80 bg-slate-950/80 text-xs text-slate-400 py-6 mt-auto">
+        <div class="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
+            <div>
+                <p class="font-medium text-slate-300">Shorter-Link • 100% Soukromý & Lokální</p>
+                <p class="mt-1 text-slate-500">Provozovatel nenesen právní odpovědnost za obsah cizích odkazů. V případě zneužití kontaktujte: <a href="mailto:report@iamhonza.eu" class="text-brand-500 hover:underline">report@iamhonza.eu</a></p>
+            </div>
+            <div class="text-slate-500">
+                Doména: <span class="text-slate-300 font-mono">link.iamhonza.eu</span>
+            </div>
+        </div>
     </footer>
 
-    <!-- Admin Přihlašovací Modal -->
-    <div id="adminModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-4">
-            <div class="flex items-center justify-between">
-                <h3 class="font-bold text-lg flex items-center space-x-2">
-                    <i class="fa-solid fa-lock text-brand-500"></i>
-                    <span>Admin Přihlášení</span>
-                </h3>
-                <button onclick="closeAdminModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <p class="text-xs text-slate-500">Zadejte administrátorské heslo pro správu a mazání odkazů:</p>
-            <div>
-                <input type="password" id="adminPasswordInput" placeholder="Heslo (výchozí: admin123)" 
-                    class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
-            </div>
-            <div class="flex space-x-2 pt-2">
-                <button onclick="closeAdminModal()" class="flex-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 font-medium py-2.5 rounded-xl text-xs transition">Zrušit</button>
-                <button onclick="loginAdmin()" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 rounded-xl text-xs transition">Přihlásit</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- QR Modal -->
-    <div id="qrModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 text-center space-y-4">
-            <h3 class="font-bold text-lg">QR Kód odkazu</h3>
-            <div class="flex justify-center">
-                <div id="qrCodeContainer" class="bg-white p-4 inline-block rounded-xl border border-slate-100 shadow-inner"></div>
-            </div>
-            <p id="qrModalLinkText" class="text-xs font-mono text-slate-500 dark:text-slate-400 break-all"></p>
-            <div class="flex space-x-2 pt-2">
-                <button onclick="closeQrModal()" class="w-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 font-medium py-2.5 rounded-xl text-xs transition">Zavřít</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast Notifikace -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-xl shadow-xl text-xs font-medium flex items-center space-x-2">
-        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 dark:text-emerald-600"></i>
-        <span id="toastText">Odkaz zkopírován</span>
-    </div>
-
-    <!-- JavaScript Logika -->
+    <!-- Skripty pro správu localStorage -->
     <script>
-        const DOMAIN = "https://link.iamhonza.eu";
-        const ADMIN_PASSWORD = "admin123"; // Můžete si zde upravit heslo pro správu
+        const DOMAIN = "link.iamhonza.eu";
 
-        let isAdmin = localStorage.getItem('shorter_is_admin') === 'true';
-
-        // Načtení odkazů z lokálního úložiště
-        let links = JSON.parse(localStorage.getItem('shorter_links_v8')) || [
-            { id: '1', alias: 'iamhonzaeu', target: 'https://www.iamhonza.eu/', tag: 'Osobní', clicks: 0, createdAt: new Date().toISOString().split('T')[0] }
-        ];
-
-        function validateUrlStrict(url) {
+        function getLinks() {
             try {
-                const parsed = new URL(url);
-                if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-                    return { valid: false, reason: 'URL musí začínat na http:// nebo https://' };
-                }
-
-                const knownServices = ['youtube.com', 'youtu.be', 'instagram.com', 'facebook.com', 'twitter.com', 'x.com', 'tiktok.com'];
-                const matchedServices = knownServices.filter(service => url.toLowerCase().includes(service));
-
-                if (matchedServices.length > 1) {
-                    return { 
-                        valid: false, 
-                        reason: `Odkaz nesmí obsahovat více služeb najednou (${matchedServices.join(', ')}). Zadejte prosím čistou URL jedné konkrétní služby.` 
-                    };
-                }
-
-                return { valid: true, cleanUrl: parsed.href };
+                return JSON.parse(localStorage.getItem('shorter_links') || '[]');
             } catch (e) {
-                return { valid: false, reason: 'Zadaná hodnota není platná URL adresa.' };
+                return [];
             }
         }
 
-        function saveLinks() {
-            localStorage.setItem('shorter_links_v8', JSON.stringify(links));
-            updateStats();
+        function saveLinks(links) {
+            localStorage.setItem('shorter_links', JSON.stringify(links));
         }
 
-        function updateStats() {
-            document.getElementById('statTotalLinks').innerText = links.length;
-            const totalClicks = links.reduce((sum, l) => sum + l.clicks, 0);
-            document.getElementById('statTotalClicks').innerText = totalClicks;
-        }
-
-        function renderAdminHeader() {
-            const container = document.getElementById('adminAuthContainer');
-            if (isAdmin) {
-                container.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <span class="text-[11px] bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 font-bold px-2.5 py-1 rounded-md flex items-center space-x-1">
-                            <i class="fa-solid fa-key text-xs"></i>
-                            <span>Admin Režim</span>
-                        </span>
-                        <button onclick="logoutAdmin()" title="Odhlásit Admina" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-900/40 px-2.5 py-1 rounded-md transition">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                        </button>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = `
-                    <button onclick="openAdminModal()" class="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 font-medium">
-                        <i class="fa-solid fa-user-lock text-brand-500"></i>
-                        <span>Admin</span>
-                    </button>
-                `;
-            }
-        }
-
-        function renderLinks() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
+        function renderLinks(filter = '') {
+            const links = getLinks();
             const tbody = document.getElementById('linksTableBody');
+            const emptyState = document.getElementById('emptyState');
+            
             tbody.innerHTML = '';
 
             const filtered = links.filter(l => 
-                l.alias.toLowerCase().includes(query) || 
-                l.target.toLowerCase().includes(query) || 
-                (l.tag && l.tag.toLowerCase().includes(query))
+                l.alias.toLowerCase().includes(filter.toLowerCase()) || 
+                l.target.toLowerCase().includes(filter.toLowerCase()) ||
+                (l.tag && l.tag.toLowerCase().includes(filter.toLowerCase()))
             );
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400 text-xs">Žádné odkazy nebyly nalezeny.</td></tr>`;
+                emptyState.classList.remove('hidden');
                 return;
+            } else {
+                emptyState.classList.add('hidden');
             }
 
-            filtered.forEach(link => {
-                const shortUrl = `${DOMAIN}/${link.alias}`;
+            filtered.forEach((link) => {
                 const tr = document.createElement('tr');
-                tr.id = `link-row-${link.id}`;
-                tr.className = "hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition duration-300";
+                tr.className = "hover:bg-slate-900/50 transition";
+                
+                const shortUrl = `https://${DOMAIN}/${link.alias}`;
+
                 tr.innerHTML = `
-                    <td class="py-3 px-6">
-                        <div class="font-mono font-bold text-brand-600 dark:text-brand-400 text-xs flex items-center space-x-1">
-                            <a href="${shortUrl}" target="_blank" onclick="registerClick('${link.id}')" class="hover:underline">${shortUrl}</a>
-                            <i class="fa-solid fa-external-link-alt text-[10px] text-slate-400"></i>
-                        </div>
-                        <div class="text-slate-400 text-[11px] truncate max-w-xs mt-0.5">${link.target}</div>
+                    <td class="py-3 px-4">
+                        <div class="font-medium text-brand-400 font-mono text-xs"><a href="${shortUrl}" target="_blank" class="hover:underline">${shortUrl}</a></div>
+                        <div class="text-xs text-slate-500 truncate max-w-xs mt-0.5">${link.target}</div>
                     </td>
                     <td class="py-3 px-4">
-                        ${link.tag ? `<span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md text-[10px] font-medium">${link.tag}</span>` : '<span class="text-slate-400 text-xs">-</span>'}
+                        ${link.tag ? `<span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-xs border border-slate-700">${link.tag}</span>` : '<span class="text-slate-600">—</span>'}
                     </td>
-                    <td class="py-3 px-4 font-bold text-xs">${link.clicks}</td>
-                    <td class="py-3 px-4 text-slate-400 text-xs">${link.createdAt}</td>
-                    <td class="py-3 px-6 text-right space-x-1">
-                        <button onclick="copyToClipboard('${shortUrl}')" title="Kopírovat odkaz" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-brand-50 dark:hover:bg-brand-900/50 hover:text-brand-600 transition inline-flex items-center justify-center text-xs">
-                            <i class="fa-regular fa-copy"></i>
-                        </button>
-                        <button onclick="showQr('${shortUrl}')" title="Zobrazit QR kód" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-brand-50 dark:hover:bg-brand-900/50 hover:text-brand-600 transition inline-flex items-center justify-center text-xs">
-                            <i class="fa-solid fa-qrcode"></i>
-                        </button>
-                        ${isAdmin ? `
-                            <button onclick="deleteLink('${link.id}')" title="Smazat (Admin)" class="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-200 transition inline-flex items-center justify-center text-xs">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        ` : ''}
+                    <td class="py-3 px-4 text-slate-400">${link.clicks || 0}</td>
+                    <td class="py-3 px-4 text-slate-500 text-xs">${link.date}</td>
+                    <td class="py-3 px-4 text-right space-x-2">
+                        <button onclick="copyLink('${shortUrl}')" class="text-slate-400 hover:text-slate-200 text-xs bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-lg transition">Kopírovat</button>
+                        <button onclick="deleteLink('${link.alias}')" class="text-red-400 hover:text-red-300 text-xs bg-red-950/30 border border-red-900/50 px-2.5 py-1 rounded-lg transition">Smazat</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function handleCreateLink(e) {
+        document.getElementById('shortenForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const rawTarget = document.getElementById('targetUrl').value.trim();
-            let alias = document.getElementById('customAlias').value.trim().replace(/^\/+|\/+$/g, '');
+            const target = document.getElementById('targetUrl').value.trim();
+            let alias = document.getElementById('customAlias').value.trim();
             const tag = document.getElementById('linkTag').value.trim();
 
-            const validation = validateUrlStrict(rawTarget);
-            if (!validation.valid) {
-                showToast(validation.reason, 'error');
-                return;
-            }
-
             if (!alias) {
+                // Vygeneruj náhodný alias, pokud není zadaný
                 alias = Math.random().toString(36).substring(2, 8);
             }
 
-            if (links.some(l => l.alias.toLowerCase() === alias.toLowerCase())) {
-                showToast('Tento alias již používáte. Zvolte prosím jiný.', 'error');
+            // Validace proti duplicitám
+            const links = getLinks();
+            if (links.some(l => l.alias === alias)) {
+                alert('Tento alias je již obsazený. Zvolte jiný.');
                 return;
             }
 
             const newLink = {
-                id: Date.now().toString(),
                 alias,
-                target: validation.cleanUrl,
+                target,
                 tag,
                 clicks: 0,
-                createdAt: new Date().toISOString().split('T')[0]
+                date: new Date().toISOString().split('T')[0]
             };
 
             links.unshift(newLink);
-            saveLinks();
-            renderLinks();
+            saveLinks(links);
 
             document.getElementById('shortenForm').reset();
-            showToast('Odkaz byl úspěšně zkrácen!', 'success');
-        }
-
-        // Mazání je povoleno POUZE v režimu Admin
-        function deleteLink(id) {
-            if (!isAdmin) {
-                showToast('Nemáte oprávnění mazat odkazy.', 'error');
-                return;
-            }
-
-            if (confirm('Jste přihlášeni jako Admin. Opravdu chcete tento odkaz smazat?')) {
-                links = links.filter(l => l.id !== id);
-                saveLinks();
-                renderLinks();
-                showToast('Odkaz byl úspěšně smazán', 'success');
-            }
-        }
-
-        // Správa Admin Režimu
-        function openAdminModal() {
-            document.getElementById('adminModal').classList.remove('hidden');
-            document.getElementById('adminPasswordInput').focus();
-        }
-
-        function closeAdminModal() {
-            document.getElementById('adminModal').classList.add('hidden');
-            document.getElementById('adminPasswordInput').value = '';
-        }
-
-        function loginAdmin() {
-            const pwd = document.getElementById('adminPasswordInput').value;
-            if (pwd === ADMIN_PASSWORD) {
-                isAdmin = true;
-                localStorage.setItem('shorter_is_admin', 'true');
-                renderAdminHeader();
-                renderLinks();
-                closeAdminModal();
-                showToast('Jste přihlášeni jako Admin!', 'success');
-            } else {
-                showToast('Nesprávné heslo!', 'error');
-            }
-        }
-
-        function logoutAdmin() {
-            isAdmin = false;
-            localStorage.setItem('shorter_is_admin', 'false');
-            renderAdminHeader();
             renderLinks();
-            showToast('Admin byl odhlášen', 'success');
-        }
+        });
 
-        function registerClick(id) {
-            const link = links.find(l => l.id === id);
-            if (link) {
-                link.clicks++;
-                saveLinks();
+        function deleteLink(alias) {
+            if (confirm('Opravdu chcete tento odkaz smazat ze svého zařízení?')) {
+                let links = getLinks();
+                links = links.filter(l => l.alias !== alias);
+                saveLinks(links);
                 renderLinks();
             }
         }
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text);
-            showToast('Odkaz zkopírován do schránky!', 'success');
-        }
-
-        function showToast(text, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastText = document.getElementById('toastText');
-            const toastIcon = document.getElementById('toastIcon');
-
-            toastText.innerText = text;
-
-            if (type === 'error') {
-                toastIcon.className = "fa-solid fa-circle-exclamation text-amber-400";
-            } else {
-                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 dark:text-emerald-600";
-            }
-
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 4000);
-        }
-
-        function showQr(url) {
-            document.getElementById('qrModalLinkText').innerText = url;
-            const container = document.getElementById('qrCodeContainer');
-            container.innerHTML = '';
-            
-            new QRCode(container, {
-                text: url,
-                width: 160,
-                height: 160,
-                colorDark : "#0f172a",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
+        function copyLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Odkaz zkopírován do schránky!');
             });
-
-            document.getElementById('qrModal').classList.remove('hidden');
         }
 
-        function closeQrModal() {
-            document.getElementById('qrModal').classList.add('hidden');
-        }
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            renderLinks(e.target.value);
+        });
 
-        function toggleDarkMode() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        }
-
-        // Inicializace
-        renderAdminHeader();
-        updateStats();
+        // Inicializace při načtení
         renderLinks();
     </script>
 </body>
