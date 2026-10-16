@@ -20,3 +20,7 @@ Jednoduchý, rychlý a soukromý zkracovač odkazů postavený na **Cloudflare P
 - **Odpovědnost:** Provozovatel nenesete žádnou odpovědnost za obsah zkrácených odkazů. Veškerou odpovědnost nese uživatel, který odkaz vytvořil. Služba nesmí být využívána k šíření spamu, malware nebo nelegálního obsahu.
 - **Kontakt pro nahlášení zneužití:** [report@iamhonza.eu](mailto:report@iamhonza.eu)
 - **Ochrana soukromí:** Aplikace nesleduje uživatele a nezaznamenává IP adresy.
+
+## 📄 Licence
+
+Tento projekt je šířen pod licencí **MIT**. Více informací naleznete v souboru [LICENSE](LICENSE).
