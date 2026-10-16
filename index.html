@@ -1,250 +1,179 @@
 <!DOCTYPE html>
-<html lang="cs" class="h-full">
+<html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shorter-Link — link.iamhonza.eu</title>
+    <title>Shorter-Link | Lokální zkracovač odkazů</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: { 50: '#f0fdf4', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' }
-                    }
-                }
-            }
-        }
-    </script>
 </head>
-<body class="h-full bg-slate-900 text-slate-100 flex flex-col antialiased selection:bg-brand-500 selection:text-slate-950">
-
-    <!-- Hlavička -->
-    <header class="border-b border-slate-800 bg-slate-950/50 backdrop-blur sticky top-0 z-10">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-500 font-bold text-xl">
-                    🔗
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight">Shorter-Link</h1>
-                    <p class="text-xs text-slate-400">Soukromý lokální zkracovač odkazů</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2 text-xs bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700">
-                <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-                <span class="text-slate-300">Bezpečná lokální paměť</span>
-            </div>
-        </div>
-    </header>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
 
     <!-- Hlavní obsah -->
-    <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full space-y-8">
+    <main class="max-w-2xl w-full mx-auto px-4 py-10 flex-grow">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900">Shorter-Link</h1>
+            <p class="text-sm text-slate-500 mt-1">Soukromý lokální zkracovač odkazů bez nutnosti serveru</p>
+        </header>
 
         <!-- Formulář pro vytvoření odkazu -->
-        <section class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-brand-500/5 rounded-full blur-3xl pointer-events-none"></div>
-            
-            <h2 class="text-base font-semibold mb-4 flex items-center gap-2 text-slate-200">
-                <span>➕</span> Vytvořit nový zkrácený odkaz
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 v-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                Vytvořit nový zkrácený odkaz
             </h2>
-
-            <form id="shortenForm" class="space-y-4">
+            
+            <form id="link-form" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Cílová URL adresa *</label>
-                    <input type="url" id="targetUrl" required placeholder="https://priklad.cz/dlouha-adresa" 
-                        class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
+                    <label class="block text-xs font-medium text-slate-600 uppercase tracking-wider mb-1">Cílová URL adresa *</label>
+                    <input type="url" id="target-url" required placeholder="https://priklad.cz/dlouha-adresa" 
+                           class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Vlastní alias (volitelné)</label>
-                        <div class="flex items-center bg-slate-900 border border-slate-700 rounded-xl overflow-hidden focus-within:border-brand-500 transition">
-                            <span class="pl-3 pr-1 text-xs text-slate-500 select-none">/</span>
-                            <input type="text" id="customAlias" placeholder="moje-video" 
-                                class="w-full bg-transparent py-2.5 pr-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none">
-                        </div>
+                        <label class="block text-xs font-medium text-slate-600 uppercase tracking-wider mb-1">Vlastní alias (volitelné)</label>
+                        <input type="text" id="custom-alias" placeholder="moje-video" 
+                               class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     </div>
-
                     <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Štítek / Kategorie</label>
-                        <input type="text" id="linkTag" placeholder="např. Video, Osobní, Projekt" 
-                            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
+                        <label class="block text-xs font-medium text-slate-600 uppercase tracking-wider mb-1">Štítek / Kategorie</label>
+                        <input type="text" id="link-tag" placeholder="např. Video, Osobní, Projekt" 
+                               class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-slate-950 font-semibold py-3 rounded-xl transition shadow-lg shadow-brand-600/20 text-sm flex items-center justify-center gap-2 cursor-pointer">
-                    <span>⚡ Zkrátit odkaz</span>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition text-sm shadow-sm">
+                    ⚡ Zkrátit odkaz
                 </button>
             </form>
         </section>
 
-        <!-- Seznam odkazů -->
-        <section class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <div>
-                    <h2 class="text-base font-semibold text-slate-200">📋 Přehled zkrácených odkazů</h2>
-                    <p class="text-xs text-slate-400">Odkazy uložené v tomto prohlížeči</p>
-                </div>
-                <div class="w-full sm:w-auto">
-                    <input type="text" id="searchInput" placeholder="Hledat v odkazech..." 
-                        class="w-full sm:w-64 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 transition">
-                </div>
-            </div>
+        <!-- Seznam vytvořených odkazů -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-semibold mb-4 flex items-center justify-between">
+                <span>📋 Přehled zkrácených odkazů</span>
+                <span id="link-count" class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-normal">0 odkazů</span>
+            </h2>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left border-collapse text-sm">
                     <thead>
-                        <tr class="border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
-                            <th class="py-3 px-4 font-medium">Krátký odkaz & Cíl</th>
-                            <th class="py-3 px-4 font-medium">Štítek</th>
-                            <th class="py-3 px-4 font-medium">Kliknutí</th>
-                            <th class="py-3 px-4 font-medium">Vytvořeno</th>
-                            <th class="py-3 px-4 font-medium text-right">Akce</th>
+                        <tr class="border-b border-slate-100 text-slate-400 text-xs uppercase tracking-wider">
+                            <th class="pb-3 font-medium">Krátký odkaz</th>
+                            <th class="pb-3 font-medium">Cíl</th>
+                            <th class="pb-3 font-medium">Štítek</th>
+                            <th class="pb-3 font-medium text-center">Kliknutí</th>
+                            <th class="pb-3 font-medium text-right">Akce</th>
                         </tr>
                     </thead>
-                    <tbody id="linksTableBody" class="divide-y divide-slate-800/60 text-sm">
-                        <!-- Generováno dynamicky přes JS -->
+                    <tbody id="links-table-body" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="5" class="py-6 text-center text-slate-400 text-sm">Zatím zde nejsou žádné zkrácené odkazy.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
-            <div id="emptyState" class="text-center py-12 text-slate-500 text-sm hidden">
-                Zatím zde nejsou žádné zkrácené odkazy.
-            </div>
         </section>
-
     </main>
 
-    <!-- Patička -->
-    <footer class="border-t border-slate-800/80 bg-slate-950/80 text-xs text-slate-400 py-6 mt-auto">
-        <div class="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
-            <div>
-                <p class="font-medium text-slate-300">Shorter-Link • 100% Soukromý & Lokální</p>
-                <p class="mt-1 text-slate-500">Provozovatel nenesen právní odpovědnost za obsah cizích odkazů. V případě zneužití kontaktujte: <a href="mailto:report@iamhonza.eu" class="text-brand-500 hover:underline">report@iamhonza.eu</a></p>
-            </div>
-            <div class="text-slate-500">
-                Doména: <span class="text-slate-300 font-mono">link.iamhonza.eu</span>
-            </div>
-        </div>
+    <!-- Patička s právním rámcem -->
+    <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 space-y-1">
+        <p class="font-medium">Shorter-Link • 100% Soukromý & Lokální</p>
+        <p>Provozovatel nenesen právní odpovědnost za obsah cizích odkazů. V případě zneužití kontaktujte: <a href="mailto:report@iamhonza.eu" class="text-blue-600 hover:underline">report@iamhonza.eu</a></p>
+        <p class="text-slate-400">Doména: link.iamhonza.eu</p>
     </footer>
 
-    <!-- Skripty pro správu localStorage -->
+    <!-- JavaScript pro správu localStorage a generování aliasů -->
     <script>
-        const DOMAIN = "link.iamhonza.eu";
+        const STORAGE_KEY = 'iamhonza_links';
 
-        function getLinks() {
-            try {
-                return JSON.parse(localStorage.getItem('shorter_links') || '[]');
-            } catch (e) {
-                return [];
+        document.getElementById('link-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const targetUrl = document.getElementById('target-url').value.trim();
+            let alias = document.getElementById('custom-alias').value.trim();
+            const tag = document.getElementById('link-tag').value.trim() || 'Osobní';
+
+            if (!alias) {
+                // Vygeneruje náhodný 5místný řetězec, pokud uživatel nezadal vlastní alias
+                alias = Math.random().toString(36.substring(2, 8));
             }
-        }
 
-        function saveLinks(links) {
-            localStorage.setItem('shorter_links', JSON.stringify(links));
-        }
+            // Očištění aliasu od mezer a lomítek
+            alias = alias.replace(/[\s\/]+/g, '-').toLowerCase();
 
-        function renderLinks(filter = '') {
-            const links = getLinks();
-            const tbody = document.getElementById('linksTableBody');
-            const emptyState = document.getElementById('emptyState');
+            let links = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+            
+            links[alias] = {
+                url: targetUrl,
+                tag: tag,
+                clicks: 0,
+                created: new Date().toLocaleDateString('cs-CS')
+            };
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
+
+            // Vyčištění formuláře
+            document.getElementById('link-form').reset();
+            loadLinks();
+        });
+
+        function loadLinks() {
+            const links = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+            const tbody = document.getElementById('links-table-body');
+            const countBadge = document.getElementById('link-count');
             
             tbody.innerHTML = '';
+            const keys = Object.keys(links);
+            
+            countBadge.textContent = `${keys.length} ${keys.length === 1 ? 'odkaz' : keys.length >= 2 && keys.length <= 4 ? 'odkazy' : 'odkazů'}`;
 
-            const filtered = links.filter(l => 
-                l.alias.toLowerCase().includes(filter.toLowerCase()) || 
-                l.target.toLowerCase().includes(filter.toLowerCase()) ||
-                (l.tag && l.tag.toLowerCase().includes(filter.toLowerCase()))
-            );
-
-            if (filtered.length === 0) {
-                emptyState.classList.remove('hidden');
+            if (keys.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400 text-sm">Zatím zde nejsou žádné zkrácené odkazy.</td></tr>`;
                 return;
-            } else {
-                emptyState.classList.add('hidden');
             }
 
-            filtered.forEach((link) => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-900/50 transition";
-                
-                const shortUrl = `https://${DOMAIN}/${link.alias}`;
+            keys.forEach(alias => {
+                const data = links[alias];
+                const fullShortUrl = `https://link.iamhonza.eu/${alias}`;
 
+                const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="py-3 px-4">
-                        <div class="font-medium text-brand-400 font-mono text-xs"><a href="${shortUrl}" target="_blank" class="hover:underline">${shortUrl}</a></div>
-                        <div class="text-xs text-slate-500 truncate max-w-xs mt-0.5">${link.target}</div>
+                    <td class="py-3 font-medium text-blue-600">
+                        <a href="${fullShortUrl}" target="_blank" class="hover:underline flex items-center gap-1">/${alias}</a>
                     </td>
-                    <td class="py-3 px-4">
-                        ${link.tag ? `<span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-xs border border-slate-700">${link.tag}</span>` : '<span class="text-slate-600">—</span>'}
-                    </td>
-                    <td class="py-3 px-4 text-slate-400">${link.clicks || 0}</td>
-                    <td class="py-3 px-4 text-slate-500 text-xs">${link.date}</td>
-                    <td class="py-3 px-4 text-right space-x-2">
-                        <button onclick="copyLink('${shortUrl}')" class="text-slate-400 hover:text-slate-200 text-xs bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-lg transition">Kopírovat</button>
-                        <button onclick="deleteLink('${link.alias}')" class="text-red-400 hover:text-red-300 text-xs bg-red-950/30 border border-red-900/50 px-2.5 py-1 rounded-lg transition">Smazat</button>
+                    <td class="py-3 text-slate-600 truncate max-w-xs" title="${data.url}">${data.url}</td>
+                    <td class="py-3"><span class="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded">${data.tag}</span></td>
+                    <td class="py-3 text-center text-slate-600">${data.clicks}</td>
+                    <td class="py-3 text-right space-x-2">
+                        <button onclick="copyToClipboard('${fullShortUrl}')" class="text-slate-500 hover:text-blue-600 text-xs font-medium">Kopírovat</button>
+                        <button onclick="deleteLink('${alias}')" class="text-red-500 hover:text-red-700 text-xs font-medium">Smazat</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        document.getElementById('shortenForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const target = document.getElementById('targetUrl').value.trim();
-            let alias = document.getElementById('customAlias').value.trim();
-            const tag = document.getElementById('linkTag').value.trim();
-
-            if (!alias) {
-                // Vygeneruj náhodný alias, pokud není zadaný
-                alias = Math.random().toString(36).substring(2, 8);
-            }
-
-            // Validace proti duplicitám
-            const links = getLinks();
-            if (links.some(l => l.alias === alias)) {
-                alert('Tento alias je již obsazený. Zvolte jiný.');
-                return;
-            }
-
-            const newLink = {
-                alias,
-                target,
-                tag,
-                clicks: 0,
-                date: new Date().toISOString().split('T')[0]
-            };
-
-            links.unshift(newLink);
-            saveLinks(links);
-
-            document.getElementById('shortenForm').reset();
-            renderLinks();
-        });
-
-        function deleteLink(alias) {
-            if (confirm('Opravdu chcete tento odkaz smazat ze svého zařízení?')) {
-                let links = getLinks();
-                links = links.filter(l => l.alias !== alias);
-                saveLinks(links);
-                renderLinks();
-            }
-        }
-
-        function copyLink(url) {
-            navigator.clipboard.writeText(url).then(() => {
-                alert('Odkaz zkopírován do schránky!');
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Krátký odkaz byl zkopírován do schránky!');
             });
         }
 
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            renderLinks(e.target.value);
-        });
+        function deleteLink(alias) {
+            if (confirm(`Opravdu chcete smazat odkaz /${alias}?`)) {
+                let links = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+                delete links[alias];
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
+                loadLinks();
+            }
+        }
 
-        // Inicializace při načtení
-        renderLinks();
+        // Načtení odkazů při startu
+        loadLinks();
     </script>
 </body>
 </html>
