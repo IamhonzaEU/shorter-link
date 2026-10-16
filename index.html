@@ -1,77 +1,93 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="cs" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shorter-Link | Lokální zkracovač odkazů</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100 bg-slate-50 text-slate-800">
+
+    <!-- Horní lišta s přepínačem tématu -->
+    <header class="max-w-4xl w-full mx-auto px-4 pt-6 flex justify-between items-center">
+        <div class="flex items-center gap-2 font-bold text-xl tracking-tight">
+            <span class="bg-blue-600 text-white p-1.5 rounded-lg">🔗</span>
+            <span>Shorter-Link</span>
+        </div>
+        <button id="theme-toggle" class="p-2 rounded-xl bg-slate-800 dark:bg-slate-800 bg-slate-200 text-slate-200 dark:text-slate-200 text-slate-700 hover:opacity-80 transition flex items-center gap-2 text-xs font-medium">
+            <span id="theme-toggle-icon">🌙</span>
+            <span id="theme-toggle-text">Tmavý režim</span>
+        </button>
+    </header>
 
     <!-- Hlavní obsah -->
-    <main class="max-w-2xl w-full mx-auto px-4 py-10 flex-grow">
-        <header class="mb-8 text-center">
-            <h1 class="text-3xl font-bold tracking-tight text-slate-900">Shorter-Link</h1>
-            <p class="text-sm text-slate-500 mt-1">Soukromý lokální zkracovač odkazů bez nutnosti serveru</p>
-        </header>
+    <main class="max-w-4xl w-full mx-auto px-4 py-8 flex-grow">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">Lokální zkracovač odkazů</h1>
+            <p class="text-sm text-slate-400 mt-2">Bezpečný, rychlý a uložený přímo ve vašem prohlížeči</p>
+        </div>
 
         <!-- Formulář pro vytvoření odkazu -->
-        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
-            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 v-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                </svg>
-                Vytvořit nový zkrácený odkaz
+        <section class="dark:bg-slate-900 bg-white p-6 rounded-2xl shadow-xl border dark:border-slate-800 border-slate-200 mb-8 transition-colors">
+            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2 text-blue-400">
+                <span>⚡</span> Vytvořit nový zkrácený odkaz
             </h2>
             
             <form id="link-form" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-slate-600 uppercase tracking-wider mb-1">Cílová URL adresa *</label>
-                    <input type="url" id="target-url" required placeholder="https://priklad.cz/dlouha-adresa" 
-                           class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <label class="block text-xs font-semibold dark:text-slate-300 text-slate-600 uppercase tracking-wider mb-1.5">Cílová URL adresa *</label>
+                    <input type="url" id="target-url" required placeholder="https://priklad.cz/velmi-dlouha-adresa" 
+                           class="w-full px-4 py-2.5 text-sm rounded-xl dark:bg-slate-950 bg-slate-50 border dark:border-slate-700 border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-600 uppercase tracking-wider mb-1">Vlastní alias (volitelné)</label>
+                        <label class="block text-xs font-semibold dark:text-slate-300 text-slate-600 uppercase tracking-wider mb-1.5">Vlastní alias (volitelné)</label>
                         <input type="text" id="custom-alias" placeholder="moje-video" 
-                               class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                               class="w-full px-4 py-2.5 text-sm rounded-xl dark:bg-slate-950 bg-slate-50 border dark:border-slate-700 border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-600 uppercase tracking-wider mb-1">Štítek / Kategorie</label>
+                        <label class="block text-xs font-semibold dark:text-slate-300 text-slate-600 uppercase tracking-wider mb-1.5">Štítek / Kategorie</label>
                         <input type="text" id="link-tag" placeholder="např. Video, Osobní, Projekt" 
-                               class="w-full px-3.5 py-2 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                               class="w-full px-4 py-2.5 text-sm rounded-xl dark:bg-slate-950 bg-slate-50 border dark:border-slate-700 border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition text-sm shadow-sm">
-                    ⚡ Zkrátit odkaz
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg shadow-blue-600/20 text-sm">
+                    Zkrátit odkaz
                 </button>
             </form>
         </section>
 
         <!-- Seznam vytvořených odkazů -->
-        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <h2 class="text-lg font-semibold mb-4 flex items-center justify-between">
-                <span>📋 Přehled zkrácených odkazů</span>
-                <span id="link-count" class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-normal">0 odkazů</span>
-            </h2>
+        <section class="dark:bg-slate-900 bg-white p-6 rounded-2xl shadow-xl border dark:border-slate-800 border-slate-200 transition-colors">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold flex items-center gap-2">
+                    <span>📋</span> Přehled zkrácených odkazů
+                </h2>
+                <span id="link-count" class="text-xs dark:bg-slate-800 bg-slate-100 dark:text-slate-300 text-slate-600 px-3 py-1 rounded-full font-medium">0 odkazů</span>
+            </div>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
-                        <tr class="border-b border-slate-100 text-slate-400 text-xs uppercase tracking-wider">
-                            <th class="pb-3 font-medium">Krátký odkaz</th>
-                            <th class="pb-3 font-medium">Cíl</th>
-                            <th class="pb-3 font-medium">Štítek</th>
-                            <th class="pb-3 font-medium text-center">Kliknutí</th>
-                            <th class="pb-3 font-medium text-right">Akce</th>
+                        <tr class="border-b dark:border-slate-800 border-slate-200 text-slate-400 text-xs uppercase tracking-wider">
+                            <th class="pb-3 font-semibold">Krátký odkaz</th>
+                            <th class="pb-3 font-semibold">Cíl</th>
+                            <th class="pb-3 font-semibold">Štítek</th>
+                            <th class="pb-3 font-semibold text-center">Kliknutí</th>
+                            <th class="pb-3 font-semibold text-right">Akce</th>
                         </tr>
                     </thead>
-                    <tbody id="links-table-body" class="divide-y divide-slate-100">
+                    <tbody id="links-table-body" class="divide-y dark:divide-slate-800/60 divide-slate-100">
                         <tr>
-                            <td colspan="5" class="py-6 text-center text-slate-400 text-sm">Zatím zde nejsou žádné zkrácené odkazy.</td>
+                            <td colspan="5" class="py-8 text-center text-slate-500 text-sm">Zatím zde nejsou žádné zkrácené odkazy.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -79,17 +95,47 @@
         </section>
     </main>
 
-    <!-- Patička s právním rámcem -->
-    <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 space-y-1">
-        <p class="font-medium">Shorter-Link • 100% Soukromý & Lokální</p>
-        <p>Provozovatel nenesen právní odpovědnost za obsah cizích odkazů. V případě zneužití kontaktujte: <a href="mailto:report@iamhonza.eu" class="text-blue-600 hover:underline">report@iamhonza.eu</a></p>
-        <p class="text-slate-400">Doména: link.iamhonza.eu</p>
+    <!-- Patička -->
+    <footer class="border-t dark:border-slate-800 border-slate-200 dark:bg-slate-950 bg-white py-6 text-center text-xs text-slate-500 space-y-1">
+        <p class="font-medium dark:text-slate-400 text-slate-600">Shorter-Link • 100% Soukromý & Lokální</p>
+        <p>Provozovatel nenesen právní odpovědnost za obsah cizích odkazů. V případě zneužití kontaktujte: <a href="mailto:report@iamhonza.eu" class="text-blue-500 hover:underline">report@iamhonza.eu</a></p>
+        <p class="text-slate-600 dark:text-slate-500">Doména: link.iamhonza.eu</p>
     </footer>
 
-    <!-- JavaScript pro správu localStorage a generování aliasů -->
+    <!-- JavaScript logic -->
     <script>
         const STORAGE_KEY = 'iamhonza_links';
+        const THEME_KEY = 'iamhonza_theme';
 
+        // --- Přepínač Denní / Tmavý režim ---
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-toggle-icon');
+        const themeText = document.getElementById('theme-toggle-text');
+
+        function applyTheme(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Tmavý režim';
+            } else {
+                document.documentElement.classList.remove('dark');
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Světlý režim';
+            }
+        }
+
+        const savedTheme = localStorage.getItem(THEME_KEY);
+        const isDarkMode = savedTheme === null ? true : savedTheme === 'dark';
+        applyTheme(isDarkMode);
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentlyDark = document.documentElement.classList.contains('dark');
+            const newDarkState = !currentlyDark;
+            applyTheme(newDarkState);
+            localStorage.setItem(THEME_KEY, newDarkState ? 'dark' : 'light');
+        });
+
+        // --- Zkracovač odkazů logic ---
         document.getElementById('link-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -98,11 +144,11 @@
             const tag = document.getElementById('link-tag').value.trim() || 'Osobní';
 
             if (!alias) {
-                // Vygeneruje náhodný 5místný řetězec, pokud uživatel nezadal vlastní alias
-                alias = Math.random().toString(36.substring(2, 8));
+                // Vygenerování 5místného nahodilého kódu
+                alias = Math.random().toString(36).substring(2, 7);
             }
 
-            // Očištění aliasu od mezer a lomítek
+            // Očištění aliasu od neplatných znaků
             alias = alias.replace(/[\s\/]+/g, '-').toLowerCase();
 
             let links = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
@@ -116,7 +162,6 @@
 
             localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
 
-            // Vyčištění formuláře
             document.getElementById('link-form').reset();
             loadLinks();
         });
@@ -132,7 +177,7 @@
             countBadge.textContent = `${keys.length} ${keys.length === 1 ? 'odkaz' : keys.length >= 2 && keys.length <= 4 ? 'odkazy' : 'odkazů'}`;
 
             if (keys.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400 text-sm">Zatím zde nejsou žádné zkrácené odkazy.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-500 text-sm">Zatím zde nejsou žádné zkrácené odkazy.</td></tr>`;
                 return;
             }
 
@@ -142,15 +187,15 @@
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="py-3 font-medium text-blue-600">
+                    <td class="py-3 font-medium text-blue-400">
                         <a href="${fullShortUrl}" target="_blank" class="hover:underline flex items-center gap-1">/${alias}</a>
                     </td>
-                    <td class="py-3 text-slate-600 truncate max-w-xs" title="${data.url}">${data.url}</td>
-                    <td class="py-3"><span class="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded">${data.tag}</span></td>
-                    <td class="py-3 text-center text-slate-600">${data.clicks}</td>
-                    <td class="py-3 text-right space-x-2">
-                        <button onclick="copyToClipboard('${fullShortUrl}')" class="text-slate-500 hover:text-blue-600 text-xs font-medium">Kopírovat</button>
-                        <button onclick="deleteLink('${alias}')" class="text-red-500 hover:text-red-700 text-xs font-medium">Smazat</button>
+                    <td class="py-3 dark:text-slate-300 text-slate-600 truncate max-w-xs" title="${data.url}">${data.url}</td>
+                    <td class="py-3"><span class="dark:bg-slate-800 bg-slate-100 dark:text-slate-300 text-slate-600 text-xs px-2.5 py-1 rounded-lg font-medium">${data.tag}</span></td>
+                    <td class="py-3 text-center dark:text-slate-400 text-slate-600">${data.clicks}</td>
+                    <td class="py-3 text-right space-x-3">
+                        <button onclick="copyToClipboard('${fullShortUrl}')" class="text-blue-400 hover:text-blue-300 text-xs font-semibold">Kopírovat</button>
+                        <button onclick="deleteLink('${alias}')" class="text-red-400 hover:text-red-300 text-xs font-semibold">Smazat</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -172,7 +217,7 @@
             }
         }
 
-        // Načtení odkazů při startu
+        // Načíst při spuštění
         loadLinks();
     </script>
 </body>
