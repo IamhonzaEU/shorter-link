@@ -7,7 +7,7 @@ export default {
     if (path === '/api/links') {
       const method = request.method;
 
-      // 1. Zabezpečení proti zneužití (Global Cache Rate Limiting bez sledování IP)
+      // 1. Zabezpečení proti zneužití (Global Cache Rate Limiting)
       if (method === 'POST') {
         const cache = caches.default;
         const cacheKey = new Request('https://rate-limit.internal/global');
@@ -20,17 +20,15 @@ export default {
           }
         } catch (e) {}
 
-        // Omezení např. na 10 vytvoření za 10 sekund pro celý web (nebo upravte podle potřeby)
         if (count >= 10) {
           return new Response(JSON.stringify({ 
-            error: "Služba je dočasně přetížená nebo příliš vytížená. Zkuste to za chvíli." 
+            error: "Služba je dočasně přetížená. Zkuste to za chvíli." 
           }), {
             status: 429,
             headers: { 'Content-Type': 'application/json' }
           });
         }
 
-        // Zápis nového počtu do cache s platností na 10 sekund
         ctx.waitUntil(cache.put(cacheKey, new Response(String(count + 1), {
           headers: { 'Cache-Control': 'max-age=10' }
         })));
@@ -119,9 +117,12 @@ export default {
             clicks: clicks
           };
 
+          // Nastavení TTL s minimální hranicí 60 sekund pro Cloudflare KV
           const putOptions = {};
           if (ttl && parseInt(ttl) > 0) {
-            putOptions.expirationTtl = parseInt(ttl);
+            let parsedTtl = parseInt(ttl);
+            if (parsedTtl < 60) parsedTtl = 60;
+            putOptions.expirationTtl = parsedTtl;
           }
 
           await env.SHORTER_KV.put(alias, JSON.stringify(linkData), putOptions);
