@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shorter-Link | Veřejný zkracovač odkazů / Public Link Shortener</title>
-    <!-- Knihovna pro generování QR kódů přímo v prohlížeči (Privacy-First) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
@@ -22,12 +21,12 @@
             display: flex; flex-direction: column; min-height: 100vh;
             transition: background-color 0.3s, color 0.3s;
         }
-        header, main, footer { max-width: 800px; width: 100%; margin: 0 auto; box-sizing: border-box; }
+        header, main, footer { max-width: 850px; width: 100%; margin: 0 auto; box-sizing: border-box; }
         main { flex-grow: 1; padding: 2rem 1rem; }
         .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 1rem; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        input, button { font-family: inherit; box-sizing: border-box; }
-        input { width: 100%; padding: 0.75rem 1rem; background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.75rem; outline: none; font-size: 0.875rem; margin-top: 0.375rem; margin-bottom: 1rem; }
-        input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
+        input, select, button { font-family: inherit; box-sizing: border-box; }
+        input, select { width: 100%; padding: 0.75rem 1rem; background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 0.75rem; outline: none; font-size: 0.875rem; margin-top: 0.375rem; margin-bottom: 1rem; }
+        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
         label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
         button.primary { width: 100%; background-color: var(--accent); color: white; border: none; padding: 0.875rem; font-weight: 600; border-radius: 0.75rem; cursor: pointer; transition: background 0.2s; font-size: 0.875rem; }
         button.primary:hover { background-color: var(--accent-hover); }
@@ -39,14 +38,13 @@
         footer { border-top: 1px solid var(--border-color); padding: 1.5rem 1rem; text-align: center; font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
         .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1rem 0 1rem; }
         .badge { background-color: var(--border-color); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
-        .row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .row-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
         
-        /* Modal pro QR kód */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-body { background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 1rem; text-align: center; max-width: 320px; width: 90%; }
+        .modal-body { background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 1rem; text-align: center; max-width: 360px; width: 90%; }
         .qr-wrapper { background: white; padding: 1rem; border-radius: 0.5rem; display: inline-block; margin: 1rem 0; }
         
-        @media(max-width: 600px) { .row-grid { grid-template-columns: 1fr; } }
+        @media(max-width: 650px) { .row-grid-3 { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -75,7 +73,7 @@
                     <label data-i18n="target_url_label">Cílová URL adresa *</label>
                     <input type="url" id="target-url" required placeholder="https://priklad.cz/dlouha-adresa">
                 </div>
-                <div class="row-grid">
+                <div class="row-grid-3">
                     <div>
                         <label data-i18n="custom_alias_label">Vlastní alias (volitelné)</label>
                         <input type="text" id="custom-alias" placeholder="např. moje-akce">
@@ -84,12 +82,25 @@
                         <label data-i18n="tag_label">Štítek / Kategorie</label>
                         <input type="text" id="link-tag" placeholder="např. Web">
                     </div>
+                    <div>
+                        <label data-i18n="expiration_label">Platnost odkazu</label>
+                        <select id="link-ttl">
+                            <option value="0" data-i18n="exp_never">Bez omezení</option>
+                            <option value="3600" data-i18n="exp_1h">1 Hodina</option>
+                            <option value="86400" data-i18n="exp_24h">24 Hodin</option>
+                            <option value="604800" data-i18n="exp_7d">7 Dní</option>
+                            <option value="2592000" data-i18n="exp_30d">30 Dní</option>
+                        </select>
+                    </div>
                 </div>
                 <button type="submit" class="primary" data-i18n="submit_btn">Zkrátit odkaz</button>
             </form>
             
             <div id="result-box" style="display: none; margin-top: 1rem; padding: 1rem; background: var(--input-bg); border-radius: 0.5rem; text-align: center; font-size: 0.875rem;">
                 <div><span data-i18n="link_created">Odkaz úspěšně vytvořen:</span> <a id="result-link" href="#" target="_blank" style="color: #3b82f6; font-weight: bold;"></a></div>
+                <div style="margin-top:0.5rem;">
+                    <button id="copy-result-btn" class="secondary" style="background:#2563eb; color:white; margin-right:0.5rem;" data-i18n="copy_btn">📋 Kopírovat odkaz</button>
+                </div>
                 <div class="qr-wrapper">
                     <div id="result-qrcode"></div>
                 </div>
@@ -108,22 +119,27 @@
 
         <div id="admin-content" style="display: none;">
             <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap:0.5rem;">
                     <h2 style="font-size: 1rem; font-weight: 600; margin: 0;" data-i18n="table_heading">📋 Přehled vytvořených odkazů (Admin)</h2>
                     <span id="link-count" class="badge">Načítám...</span>
                 </div>
+                
+                <!-- Vyhledávací pole v adminu -->
+                <input type="text" id="admin-search" oninput="filterLinks()" placeholder="🔍 Vyhledat v odkazech..." style="margin-bottom: 1rem;">
+
                 <div style="overflow-x: auto;">
                     <table>
                         <thead>
                             <tr>
                                 <th data-i18n="th_short">Krátký odkaz</th>
                                 <th data-i18n="th_target">Cíl</th>
+                                <th data-i18n="th_clicks">Kliknutí</th>
                                 <th data-i18n="th_tag">Štítek</th>
                                 <th style="text-align: right;" data-i18n="th_actions">Akce</th>
                             </tr>
                         </thead>
                         <tbody id="links-table-body">
-                            <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem 0;" data-i18n="loading">Načítám odkazy...</td></tr>
+                            <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem 0;" data-i18n="loading">Načítám odkazy...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -131,7 +147,7 @@
         </div>
     </main>
 
-    <!-- Modal dialog pro náhled QR kódu z administrace -->
+    <!-- Modal dialog pro QR kód -->
     <div id="qr-modal" class="modal-overlay" onclick="closeQrModal(event)">
         <div class="modal-body">
             <h3 style="margin-top:0; font-size:1rem;" id="modal-alias-title">QR Kód</h3>
@@ -141,6 +157,24 @@
             <br>
             <button id="modal-download-btn" class="secondary" data-i18n="download_qr">📷 Stáhnout QR kód</button>
             <button onclick="document.getElementById('qr-modal').style.display='none'" class="secondary" style="background: transparent; border: 1px solid var(--border-color);" data-i18n="close">Zavřít</button>
+        </div>
+    </div>
+
+    <!-- Modal dialog pro úpravu odkazu -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-body" style="text-align: left;">
+            <h3 style="margin-top:0; font-size:1rem; text-align:center;" data-i18n="edit_title">✏️ Úprava odkazu</h3>
+            <input type="hidden" id="edit-alias">
+            <div>
+                <label data-i18n="target_url_label">Cílová URL adresa *</label>
+                <input type="url" id="edit-target-url" required>
+            </div>
+            <div>
+                <label data-i18n="tag_label">Štítek / Kategorie</label>
+                <input type="text" id="edit-link-tag">
+            </div>
+            <button onclick="saveEdit()" class="primary" style="margin-top:0.5rem;" data-i18n="save_btn">Uložit změny</button>
+            <button onclick="document.getElementById('edit-modal').style.display='none'" class="secondary" style="width:100%; margin-top:0.5rem; background:transparent; border:1px solid var(--border-color);" data-i18n="close">Zrušit</button>
         </div>
     </div>
 
@@ -158,7 +192,6 @@
     </footer>
 
     <script>
-        /* Překladové slovníky pro CZ / EN */
         const translations = {
             cs: {
                 title: "Zkracovač odkazů",
@@ -167,6 +200,12 @@
                 target_url_label: "Cílová URL adresa *",
                 custom_alias_label: "Vlastní alias (volitelné)",
                 tag_label: "Štítek / Kategorie",
+                expiration_label: "Platnost odkazu",
+                exp_never: "Bez omezení",
+                exp_1h: "1 Hodina",
+                exp_24h: "24 Hodin",
+                exp_7d: "7 Dní",
+                exp_30d: "30 Dní",
                 submit_btn: "Zkrátit odkaz",
                 link_created: "Odkaz úspěšně vytvořen:",
                 download_qr: "📷 Stáhnout QR kód",
@@ -177,6 +216,7 @@
                 table_heading: "📋 Přehled vytvořených odkazů (Admin)",
                 th_short: "Krátký odkaz",
                 th_target: "Cíl",
+                th_clicks: "Kliknutí",
                 th_tag: "Štítek",
                 th_actions: "Akce",
                 loading: "Načítám odkazy...",
@@ -186,8 +226,11 @@
                 disclaimer_title: "Právní doložka:",
                 disclaimer_text: "Provozovatel nenese žádnou odpovědnost za obsah zkrácených odkazů. Veškerou odpovědnost nese uživatel, který odkaz vytvořil. Služba nesmí být využívána k šíření spamu, malware nebo nelegálního obsahu. V případě zneužití kontaktujte:",
                 privacy_text: "Ochrana soukromí: Služba na úrovni kódu a databáze neukládá žádné osobní údaje, cookies ani IP adresy návštěvníků. Provoz podléhá standardním pravidlům ochrany soukromí společnosti Cloudflare.",
-                copy_btn: "Kopírovat",
+                copy_btn: "📋 Kopírovat odkaz",
                 delete_btn: "Smazat",
+                edit_btn: "Upravit",
+                edit_title: "✏️ Úprava odkazu",
+                save_btn: "Uložit změny",
                 copied_alert: "Zkopírováno!",
                 logout_alert: "Byl jste odhlášen.",
                 wrong_pwd_alert: "Nesprávné heslo!",
@@ -198,6 +241,7 @@
                 target_placeholder: "https://priklad.cz/dlouha-adresa",
                 alias_placeholder: "např. moje-akce",
                 tag_placeholder: "např. Web",
+                search_placeholder: "🔍 Vyhledat v odkazech...",
                 pwd_placeholder: "Zadejte heslo...",
                 public_tag: "Veřejné",
                 count_single: "odkaz",
@@ -211,6 +255,12 @@
                 target_url_label: "Target URL address *",
                 custom_alias_label: "Custom alias (optional)",
                 tag_label: "Tag / Category",
+                expiration_label: "Link Expiration",
+                exp_never: "Never",
+                exp_1h: "1 Hour",
+                exp_24h: "24 Hours",
+                exp_7d: "7 Days",
+                exp_30d: "30 Days",
                 submit_btn: "Shorten link",
                 link_created: "Link successfully created:",
                 download_qr: "📷 Download QR Code",
@@ -221,6 +271,7 @@
                 table_heading: "📋 Overview of Created Links (Admin)",
                 th_short: "Short Link",
                 th_target: "Target",
+                th_clicks: "Clicks",
                 th_tag: "Tag",
                 th_actions: "Actions",
                 loading: "Loading links...",
@@ -230,8 +281,11 @@
                 disclaimer_title: "Legal Disclaimer:",
                 disclaimer_text: "The operator assumes no responsibility for the content of shortened links. All responsibility lies with the user who created the link. The service must not be used to distribute spam, malware, or illegal content. In case of abuse contact:",
                 privacy_text: "Privacy Protection: At the code and database level, this service does not store any personal data, cookies, or IP addresses. Operations follow standard Cloudflare privacy policies.",
-                copy_btn: "Copy",
+                copy_btn: "📋 Copy Link",
                 delete_btn: "Delete",
+                edit_btn: "Edit",
+                edit_title: "✏️ Edit Link",
+                save_btn: "Save Changes",
                 copied_alert: "Copied!",
                 logout_alert: "You have been logged out.",
                 wrong_pwd_alert: "Incorrect password!",
@@ -242,6 +296,7 @@
                 target_placeholder: "https://example.com/long-address",
                 alias_placeholder: "e.g. my-event",
                 tag_placeholder: "e.g. Web",
+                search_placeholder: "🔍 Search links...",
                 pwd_placeholder: "Enter password...",
                 public_tag: "Public",
                 count_single: "link",
@@ -251,29 +306,26 @@
         };
 
         let currentLang = localStorage.getItem('iamhonza_lang') || 'cs';
+        let allLinksData = {}; // Uložení dat pro lokální vyhledávání
 
         function updateLanguageUI() {
             const t = translations[currentLang];
             document.documentElement.lang = currentLang;
-
-            // Změna textu tlačítka přepínače
             document.getElementById('lang-toggle-btn').textContent = currentLang === 'cs' ? '🇨🇿 CZ' : '🇬🇧 EN';
 
-            // Překlad všech prvků s atributem data-i18n
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) el.textContent = t[key];
             });
 
-            // Překlad placeholderů
             document.getElementById('target-url').placeholder = t.target_placeholder;
             document.getElementById('custom-alias').placeholder = t.alias_placeholder;
             document.getElementById('link-tag').placeholder = t.tag_placeholder;
             document.getElementById('admin-password').placeholder = t.pwd_placeholder;
+            document.getElementById('admin-search').placeholder = t.search_placeholder;
 
-            // Pokud je načtená tabulka administrace, přenačteme ji s novými překlady
             if (document.getElementById('admin-content').style.display === 'block') {
-                loadLinks();
+                renderLinksTable(allLinksData);
             }
         }
 
@@ -283,19 +335,14 @@
             updateLanguageUI();
         }
 
-        // Inicializace jazyka
         updateLanguageUI();
 
         let password = localStorage.getItem('iamhonza_pwd') || '';
-
-        if (password) {
-            checkAutoLogin();
-        }
+        if (password) checkAutoLogin();
 
         function toggleAdminPanel() {
             const adminContent = document.getElementById('admin-content');
             const authCard = document.getElementById('auth-card');
-            
             if (adminContent.style.display === 'block' || authCard.style.display === 'block') {
                 authCard.style.display = 'none';
                 adminContent.style.display = 'none';
@@ -309,10 +356,7 @@
             }
         }
 
-        function login() {
-            const pwdInput = document.getElementById('admin-password').value.trim();
-            verifyAndUnlock(pwdInput);
-        }
+        function login() { verifyAndUnlock(document.getElementById('admin-password').value.trim()); }
 
         function logout() {
             localStorage.removeItem('iamhonza_pwd');
@@ -325,9 +369,7 @@
         }
 
         async function checkAutoLogin() {
-            const res = await fetch('/api/links', {
-                headers: { 'Authorization': `Bearer ${password}` }
-            });
+            const res = await fetch('/api/links', { headers: { 'Authorization': `Bearer ${password}` } });
             if (res.ok) {
                 document.getElementById('logout-btn').style.display = 'block';
                 loadLinks();
@@ -339,9 +381,7 @@
 
         async function verifyAndUnlock(pwd) {
             try {
-                const res = await fetch('/api/links', {
-                    headers: { 'Authorization': `Bearer ${pwd}` }
-                });
+                const res = await fetch('/api/links', { headers: { 'Authorization': `Bearer ${pwd}` } });
                 if (res.ok) {
                     password = pwd;
                     localStorage.setItem('iamhonza_pwd', pwd);
@@ -353,9 +393,7 @@
                     alert(translations[currentLang].wrong_pwd_alert);
                     localStorage.removeItem('iamhonza_pwd');
                 }
-            } catch(e) {
-                alert(translations[currentLang].conn_err_alert);
-            }
+            } catch(e) { alert(translations[currentLang].conn_err_alert); }
         }
 
         const themeBtn = document.getElementById('theme-toggle');
@@ -379,52 +417,68 @@
         });
 
         async function loadLinks() {
-            const t = translations[currentLang];
             try {
-                const res = await fetch('/api/links', {
-                    headers: { 'Authorization': `Bearer ${password}` }
-                });
-                if (!res.ok) {
-                    if (res.status === 403) logout();
-                    return;
-                }
-                const links = await res.json();
-                const tbody = document.getElementById('links-table-body');
-                const countBadge = document.getElementById('link-count');
-                tbody.innerHTML = '';
-                const keys = Object.keys(links);
-
-                let labelCount = t.count_many;
-                if (keys.length === 1) labelCount = t.count_single;
-                else if (keys.length >= 2 && keys.length <= 4) labelCount = t.count_few;
-
-                countBadge.textContent = `${keys.length} ${labelCount}`;
-
-                if (keys.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem 0;">${t.no_links}</td></tr>`;
-                    return;
-                }
-
-                keys.forEach(alias => {
-                    const data = links[alias];
-                    const targetUrl = typeof data === 'object' ? data.url : data;
-                    const tag = typeof data === 'object' ? (data.tag || t.public_tag) : t.public_tag;
-                    const fullShortUrl = `https://link.iamhonza.eu/${alias}`;
-
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td style="font-weight: 500;"><a href="${fullShortUrl}" target="_blank" style="color: #3b82f6; text-decoration: none;">/${alias}</a></td>
-                        <td style="color: var(--text-muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${targetUrl}">${targetUrl}</td>
-                        <td><span class="badge">${tag}</span></td>
-                        <td style="text-align: right;">
-                            <button onclick="showQrModal('${fullShortUrl}', '${alias}')" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.5rem;">QR</button>
-                            <button onclick="navigator.clipboard.writeText('${fullShortUrl}').then(()=>alert('${t.copied_alert}'))" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.5rem;">${t.copy_btn}</button>
-                            <button onclick="deleteLink('${alias}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:600; font-size:0.75rem;">${t.delete_btn}</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                const res = await fetch('/api/links', { headers: { 'Authorization': `Bearer ${password}` } });
+                if (!res.ok) { if (res.status === 403) logout(); return; }
+                allLinksData = await res.json();
+                renderLinksTable(allLinksData);
             } catch(e) { console.error(e); }
+        }
+
+        function filterLinks() {
+            const query = document.getElementById('admin-search').value.toLowerCase().trim();
+            const filtered = {};
+            Object.keys(allLinksData).forEach(alias => {
+                const data = allLinksData[alias];
+                const targetUrl = typeof data === 'object' ? data.url : data;
+                const tag = typeof data === 'object' ? (data.tag || '') : '';
+                if (alias.toLowerCase().includes(query) || targetUrl.toLowerCase().includes(query) || tag.toLowerCase().includes(query)) {
+                    filtered[alias] = data;
+                }
+            });
+            renderLinksTable(filtered);
+        }
+
+        function renderLinksTable(links) {
+            const t = translations[currentLang];
+            const tbody = document.getElementById('links-table-body');
+            const countBadge = document.getElementById('link-count');
+            tbody.innerHTML = '';
+            const keys = Object.keys(links);
+
+            let labelCount = t.count_many;
+            if (keys.length === 1) labelCount = t.count_single;
+            else if (keys.length >= 2 && keys.length <= 4) labelCount = t.count_few;
+
+            countBadge.textContent = `${keys.length} ${labelCount}`;
+
+            if (keys.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem 0;">${t.no_links}</td></tr>`;
+                return;
+            }
+
+            keys.forEach(alias => {
+                const data = links[alias];
+                const targetUrl = typeof data === 'object' ? data.url : data;
+                const tag = typeof data === 'object' ? (data.tag || t.public_tag) : t.public_tag;
+                const clicks = typeof data === 'object' ? (data.clicks || 0) : 0;
+                const fullShortUrl = `https://link.iamhonza.eu/${alias}`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: 500;"><a href="${fullShortUrl}" target="_blank" style="color: #3b82f6; text-decoration: none;">/${alias}</a></td>
+                    <td style="color: var(--text-muted); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${targetUrl}">${targetUrl}</td>
+                    <td><span class="badge" style="background:#1e293b; color:#3b82f6;">👁️ ${clicks}</span></td>
+                    <td><span class="badge">${tag}</span></td>
+                    <td style="text-align: right;">
+                        <button onclick="showQrModal('${fullShortUrl}', '${alias}')" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.3rem;">QR</button>
+                        <button onclick="openEditModal('${alias}', '${targetUrl}', '${tag}')" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.3rem;">${t.edit_btn}</button>
+                        <button onclick="navigator.clipboard.writeText('${fullShortUrl}').then(()=>alert('${t.copied_alert}'))" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.3rem;">Kopírovat</button>
+                        <button onclick="deleteLink('${alias}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:600; font-size:0.75rem;">${t.delete_btn}</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         document.getElementById('link-form').addEventListener('submit', async function(e) {
@@ -433,16 +487,15 @@
             const targetUrl = document.getElementById('target-url').value.trim();
             let alias = document.getElementById('custom-alias').value.trim();
             const tag = document.getElementById('link-tag').value.trim() || t.public_tag;
+            const ttl = document.getElementById('link-ttl').value;
 
-            if (!alias) {
-                alias = Math.random().toString(36).substring(2, 7);
-            }
+            if (!alias) alias = Math.random().toString(36).substring(2, 7);
             alias = alias.replace(/[\s\/]+/g, '-').toLowerCase();
 
             const res = await fetch('/api/links', {
                 method: 'POST',
-                headers: { 'Content-Type': 'Application/json' },
-                body: JSON.stringify({ alias, url: targetUrl, tag })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ alias, url: targetUrl, tag, ttl })
             });
 
             if (res.ok) {
@@ -453,26 +506,52 @@
                 linkEl.href = fullUrl;
                 linkEl.textContent = fullUrl;
                 
-                // Generování QR kódu pro vytvořený odkaz
+                document.getElementById('copy-result-btn').onclick = () => {
+                    navigator.clipboard.writeText(fullUrl).then(() => alert(t.copied_alert));
+                };
+
                 const qrContainer = document.getElementById('result-qrcode');
                 qrContainer.innerHTML = '';
-                new QRCode(qrContainer, {
-                    text: fullUrl,
-                    width: 128,
-                    height: 128
-                });
+                new QRCode(qrContainer, { text: fullUrl, width: 128, height: 128 });
 
                 box.style.display = 'block';
-
-                if (document.getElementById('admin-content').style.display === 'block') {
-                    loadLinks();
-                }
+                if (document.getElementById('admin-content').style.display === 'block') loadLinks();
             } else if (res.status === 409) {
                 alert(t.exist_alias_err);
             } else {
                 alert(t.save_err);
             }
         });
+
+        function openEditModal(alias, url, tag) {
+            document.getElementById('edit-alias').value = alias;
+            document.getElementById('edit-target-url').value = url;
+            document.getElementById('edit-link-tag').value = tag;
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+
+        async function saveEdit() {
+            const t = translations[currentLang];
+            const alias = document.getElementById('edit-alias').value;
+            const targetUrl = document.getElementById('edit-target-url').value.trim();
+            const tag = document.getElementById('edit-link-tag').value.trim();
+
+            const res = await fetch('/api/links', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${password}`
+                },
+                body: JSON.stringify({ alias, url: targetUrl, tag })
+            });
+
+            if (res.ok) {
+                document.getElementById('edit-modal').style.display = 'none';
+                loadLinks();
+            } else {
+                alert(t.save_err);
+            }
+        }
 
         async function deleteLink(alias) {
             const t = translations[currentLang];
@@ -482,65 +561,38 @@
                         method: 'DELETE',
                         headers: { 'Authorization': `Bearer ${password}` }
                     });
-                    if (res.ok) {
-                        loadLinks();
-                    } else {
-                        alert(t.save_err);
-                    }
-                } catch(e) {
-                    alert(t.conn_err_alert);
-                }
+                    if (res.ok) loadLinks();
+                    else alert(t.save_err);
+                } catch(e) { alert(t.conn_err_alert); }
             }
         }
 
-        /* Funkce pro stažení vygenerovaného QR kódu jako obrázku .png */
         function downloadQrCode(containerId, filename) {
             const container = document.getElementById(containerId);
             const img = container.querySelector('img');
             const canvas = container.querySelector('canvas');
-            
-            let imageSrc = '';
-            if (img && img.src) {
-                imageSrc = img.src;
-            } else if (canvas) {
-                imageSrc = canvas.toDataURL('image/png');
-            }
+            let imageSrc = img && img.src ? img.src : (canvas ? canvas.toDataURL('image/png') : '');
 
             if (imageSrc) {
                 const a = document.createElement('a');
-                a.href = imageSrc;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            } else {
-                alert('QR error');
+                a.href = imageSrc; a.download = filename;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
             }
         }
 
-        /* Zobrazení QR kódu v popupu (admin) */
         function showQrModal(url, alias) {
             document.getElementById('modal-alias-title').textContent = `QR /${alias}`;
             const modalQrContainer = document.getElementById('modal-qrcode');
             modalQrContainer.innerHTML = '';
-            
-            new QRCode(modalQrContainer, {
-                text: url,
-                width: 160,
-                height: 160
-            });
-
+            new QRCode(modalQrContainer, { text: url, width: 160, height: 160 });
             document.getElementById('modal-download-btn').onclick = function() {
                 downloadQrCode('modal-qrcode', `qr-${alias}.png`);
             };
-
             document.getElementById('qr-modal').style.display = 'flex';
         }
 
         function closeQrModal(e) {
-            if (e.target.id === 'qr-modal') {
-                document.getElementById('qr-modal').style.display = 'none';
-            }
+            if (e.target.id === 'qr-modal') document.getElementById('qr-modal').style.display = 'none';
         }
     </script>
 </body>
