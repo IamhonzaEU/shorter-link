@@ -1,3 +1,6 @@
+// Globální paměťová cache pro okamžitý rate-limiting (rychlejší než KV pro krátká okna)
+const rateLimitCache = new Map();
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -7,24 +10,33 @@ export default {
     if (path === '/api/links') {
       const method = request.method;
 
-      // 1. Zabezpečení proti zneužití (Rate Limiting pro POST požadavky na tvorbu odkazů)
+      // 1. Zabezpečení proti zneužití (In-Memory Rate Limiting pro POST)
       if (method === 'POST') {
         const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
-        const rateLimitKey = `rate_limit_${clientIp}`;
+        const now = Date.now();
+        
+        // Vyčištění starých záznamů z paměti občas
+        if (rateLimitCache.size > 10000) rateLimitCache.clear();
 
-        try {
-          const recentRequests = await env.SHORTER_KV.get(rateLimitKey);
-          if (recentRequests && parseInt(recentRequests) >= 5) {
-            return new Response(JSON.stringify({ error: "Příliš mnoho požadavků. Zkuste to prosím za chvíli." }), {
-              status: 429,
-              headers: { 'Content-Type': 'application/json' }
-            });
-          }
-          // Zaznamenání požadavku s platností TTL na 10 sekund
-          const currentCount = recentRequests ? parseInt(recentRequests) + 1 : 1;
-          await env.SHORTER_KV.put(rateLimitKey, currentCount.toString(), { expirationTtl: 10 });
-        } catch (e) {
-          console.error("Rate limit error:", e);
+        let clientRecord = rateLimitCache.get(clientIp);
+        if (!clientRecord) {
+          clientRecord = { count: 0, resetTime: now + 10000 }; // Okno 10 sekund
+        }
+
+        if (now > clientRecord.resetTime) {
+          clientRecord.count = 0;
+          clientRecord.resetTime = now + 10000;
+        }
+
+        clientRecord.count++;
+        rateLimitCache.set(clientIp, clientRecord);
+
+        // Pokud odešle víc než 5 požadavků za 10 sekund
+        if (clientRecord.count > 5) {
+          return new Response(JSON.stringify({ error: "Příliš mnoho požadavků. Zkuste to prosím za chvíli." }), {
+            status: 429,
+            headers: { 'Content-Type': 'application/json' }
+          });
         }
       }
 
@@ -58,7 +70,7 @@ export default {
         });
       }
 
-      // POST: Vytvoření nebo úprava odkazu (veřejné s rate-limitem, nebo admin)
+      // POST: Vytvoření nebo úprava odkazu
       if (method === 'POST') {
         try {
           const body = await request.json();
@@ -71,7 +83,7 @@ export default {
             });
           }
 
-          // Validace schématu URL (ochrana proti javascript:, data: a jiným nebezpečným schématům)
+          // Validace schématu URL (ochrana proti javascript:, data: atd.)
           let parsedUrl;
           try {
             parsedUrl = new URL(targetUrl);
@@ -82,7 +94,6 @@ export default {
             });
           }
 
-          // Povolení výhradně standardních webových protokolů http a https
           if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
             return new Response(JSON.stringify({ error: 'Only http and https URLs are allowed' }), {
               status: 400,
@@ -90,7 +101,6 @@ export default {
             });
           }
 
-          // Kontrola existence při vytváření nového odkazu (pokud nejde o admin úpravu)
           const existing = await env.SHORTER_KV.get(alias);
           if (existing && !isAdminAuthenticated) {
             return new Response(JSON.stringify({ error: 'Alias already exists' }), {
@@ -99,7 +109,6 @@ export default {
             });
           }
 
-          // Zachování počtu kliknutí při editaci
           let clicks = 0;
           if (existing) {
             try {
@@ -133,12 +142,12 @@ export default {
         }
       }
 
-      // DELETE: Smazání odkazu (vyžaduje admin heslo)
+      // DELETE: Smazání odkazu
       if (method === 'DELETE') {
         if (!isAdminAuthenticated) {
           return new Response(JSON.stringify({ error: 'Unauthorized' }), {
             status: 403,
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'Application/json' }
           });
         }
 
