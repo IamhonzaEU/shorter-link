@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shorter-Link | Veřejný zkracovač odkazů / Public Link Shortener</title>
+    <!-- Knihovna pro generování QR kódů přímo v prohlížeči (Privacy-First) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
@@ -50,8 +51,15 @@
 <body>
     <div class="top-nav">
         <div style="font-weight: bold; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;"><span>🔗</span> Shorter-Link</div>
-        <div style="display: flex; gap: 0.5rem;">
-            <button id="lang-toggle-btn" onclick="toggleLanguage()" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;">🇨🇿 CZ</button>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <select id="lang-select" onchange="changeLanguage(this.value)" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.4rem 0.6rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500; outline: none; margin: 0;">
+                <option value="cs">🇨🇿 CZ</option>
+                <option value="en">🇬🇧 EN</option>
+                <option value="de">🇩🇪 DE</option>
+                <option value="es">🇪🇸 ES</option>
+                <option value="sk">🇸🇰 SK</option>
+                <option value="pl">🇵🇱 PL</option>
+            </select>
             <button id="admin-toggle-btn" onclick="toggleAdminPanel()" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;">🔒 Admin</button>
             <button id="logout-btn" onclick="logout()" style="display: none; background: #ef4444; border: none; color: white; padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;" data-i18n="logout_btn">Odhlásit</button>
             <button id="theme-toggle" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;">
@@ -124,7 +132,6 @@
                     <span id="link-count" class="badge">Načítám...</span>
                 </div>
                 
-                <!-- Vyhledávací pole v adminu -->
                 <input type="text" id="admin-search" oninput="filterLinks()" placeholder="🔍 Vyhledat v odkazech..." style="margin-bottom: 1rem;">
 
                 <div style="overflow-x: auto;">
@@ -192,6 +199,7 @@
     </footer>
 
     <script>
+        /* Překladové slovníky pro CZ / EN / DE / ES / SK / PL */
         const translations = {
             cs: {
                 title: "Zkracovač odkazů",
@@ -201,52 +209,20 @@
                 custom_alias_label: "Vlastní alias (volitelné)",
                 tag_label: "Štítek / Kategorie",
                 expiration_label: "Platnost odkazu",
-                exp_never: "Bez omezení",
-                exp_1h: "1 Hodina",
-                exp_24h: "24 Hodin",
-                exp_7d: "7 Dní",
-                exp_30d: "30 Dní",
-                submit_btn: "Zkrátit odkaz",
-                link_created: "Odkaz úspěšně vytvořen:",
-                download_qr: "📷 Stáhnout QR kód",
-                admin_title: "🔐 Administrátorský přístup",
-                admin_desc: "Zadejte heslo pro zobrazení tabulky a mazání.",
-                unlock_btn: "Odemknout",
-                logout_btn: "Odhlásit",
-                table_heading: "📋 Přehled vytvořených odkazů (Admin)",
-                th_short: "Krátký odkaz",
-                th_target: "Cíl",
-                th_clicks: "Kliknutí",
-                th_tag: "Štítek",
-                th_actions: "Akce",
-                loading: "Načítám odkazy...",
-                no_links: "Zatím zde nejsou žádné odkazy.",
-                close: "Zavřít",
-                domain_label: "Doména",
-                disclaimer_title: "Právní doložka:",
-                disclaimer_text: "Provozovatel nenese žádnou odpovědnost za obsah zkrácených odkazů. Veškerou odpovědnost nese uživatel, který odkaz vytvořil. Služba nesmí být využívána k šíření spamu, malware nebo nelegálního obsahu. V případě zneužití kontaktujte:",
-                privacy_text: "Ochrana soukromí: Služba na úrovni kódu a databáze neukládá žádné osobní údaje, cookies ani IP adresy návštěvníků. Provoz podléhá standardním pravidlům ochrany soukromí společnosti Cloudflare.",
-                copy_btn: "📋 Kopírovat odkaz",
-                delete_btn: "Smazat",
-                edit_btn: "Upravit",
-                edit_title: "✏️ Úprava odkazu",
-                save_btn: "Uložit změny",
-                copied_alert: "Zkopírováno!",
-                logout_alert: "Byl jste odhlášen.",
-                wrong_pwd_alert: "Nesprávné heslo!",
-                conn_err_alert: "Chyba připojení k serveru.",
-                exist_alias_err: "Chyba: Zkratka již existuje! Zvolte prosím jiný alias.",
-                save_err: "Chyba při ukládání odkazu.",
-                delete_confirm: "Opravdu chcete smazat tento odkaz?",
-                target_placeholder: "https://priklad.cz/dlouha-adresa",
-                alias_placeholder: "např. moje-akce",
-                tag_placeholder: "např. Web",
-                search_placeholder: "🔍 Vyhledat v odkazech...",
-                pwd_placeholder: "Zadejte heslo...",
-                public_tag: "Veřejné",
-                count_single: "odkaz",
-                count_few: "odkazy",
-                count_many: "odkazů"
+                exp_never: "Bez omezení", exp_1h: "1 Hodina", exp_24h: "24 Hodin", exp_7d: "7 Dní", exp_30d: "30 Dní",
+                submit_btn: "Zkrátit odkaz", link_created: "Odkaz úspěšně vytvořen:", download_qr: "📷 Stáhnout QR kód",
+                admin_title: "🔐 Administrátorský přístup", admin_desc: "Zadejte heslo pro zobrazení tabulky a mazání.",
+                unlock_btn: "Odemknout", logout_btn: "Odhlásit", table_heading: "📋 Přehled vytvořených odkazů (Admin)",
+                th_short: "Krátký odkaz", th_target: "Cíl", th_clicks: "Kliknutí", th_tag: "Štítek", th_actions: "Akce",
+                loading: "Načítám odkazy...", no_links: "Zatím zde nejsou žádné odkazy.", close: "Zavřít",
+                domain_label: "Doména", disclaimer_title: "Právní doložka:",
+                disclaimer_text: "Provozovatel nenese žádnou odpovědnost za obsah zkrácených odkazů. Veškerou odpovědnost nese uživatel, který odkaz vytvořil.",
+                privacy_text: "Ochrana soukromí: Služba na úrovni kódu a databáze neukládá žádné osobní údaje, cookies ani IP adresy návštěvníků.",
+                copy_btn: "📋 Kopírovat odkaz", delete_btn: "Smazat", edit_btn: "Upravit", edit_title: "✏️ Úprava odkazu", save_btn: "Uložit změny",
+                copied_alert: "Zkopírováno!", logout_alert: "Byl jste odhlášen.", wrong_pwd_alert: "Nesprávné heslo!", conn_err_alert: "Chyba připojení k serveru.",
+                exist_alias_err: "Chyba: Zkratka již existuje! Zvolte prosím jiný alias.", save_err: "Chyba při ukládání odkazu.", delete_confirm: "Opravdu chcete smazat tento odkaz?",
+                target_placeholder: "https://priklad.cz/dlouha-adresa", alias_placeholder: "např. moje-akce", tag_placeholder: "např. Web", search_placeholder: "🔍 Vyhledat v odkazech...", pwd_placeholder: "Zadejte heslo...", public_tag: "Veřejné",
+                count_single: "odkaz", count_few: "odkazy", count_many: "odkazů"
             },
             en: {
                 title: "URL Shortener",
@@ -256,62 +232,130 @@
                 custom_alias_label: "Custom alias (optional)",
                 tag_label: "Tag / Category",
                 expiration_label: "Link Expiration",
-                exp_never: "Never",
-                exp_1h: "1 Hour",
-                exp_24h: "24 Hours",
-                exp_7d: "7 Days",
-                exp_30d: "30 Days",
-                submit_btn: "Shorten link",
-                link_created: "Link successfully created:",
-                download_qr: "📷 Download QR Code",
-                admin_title: "🔐 Administrator Access",
-                admin_desc: "Enter password to view table and management.",
-                unlock_btn: "Unlock",
-                logout_btn: "Logout",
-                table_heading: "📋 Overview of Created Links (Admin)",
-                th_short: "Short Link",
-                th_target: "Target",
-                th_clicks: "Clicks",
-                th_tag: "Tag",
-                th_actions: "Actions",
-                loading: "Loading links...",
-                no_links: "No links here yet.",
-                close: "Close",
-                domain_label: "Domain",
-                disclaimer_title: "Legal Disclaimer:",
-                disclaimer_text: "The operator assumes no responsibility for the content of shortened links. All responsibility lies with the user who created the link. The service must not be used to distribute spam, malware, or illegal content. In case of abuse contact:",
-                privacy_text: "Privacy Protection: At the code and database level, this service does not store any personal data, cookies, or IP addresses. Operations follow standard Cloudflare privacy policies.",
-                copy_btn: "📋 Copy Link",
-                delete_btn: "Delete",
-                edit_btn: "Edit",
-                edit_title: "✏️ Edit Link",
-                save_btn: "Save Changes",
-                copied_alert: "Copied!",
-                logout_alert: "You have been logged out.",
-                wrong_pwd_alert: "Incorrect password!",
-                conn_err_alert: "Server connection error.",
-                exist_alias_err: "Error: Alias already exists! Please choose another one.",
-                save_err: "Error saving the link.",
-                delete_confirm: "Are you sure you want to delete this link?",
-                target_placeholder: "https://example.com/long-address",
-                alias_placeholder: "e.g. my-event",
-                tag_placeholder: "e.g. Web",
-                search_placeholder: "🔍 Search links...",
-                pwd_placeholder: "Enter password...",
-                public_tag: "Public",
-                count_single: "link",
-                count_few: "links",
-                count_many: "links"
+                exp_never: "Never", exp_1h: "1 Hour", exp_24h: "24 Hours", exp_7d: "7 Days", exp_30d: "30 Days",
+                submit_btn: "Shorten link", link_created: "Link successfully created:", download_qr: "📷 Download QR Code",
+                admin_title: "🔐 Administrator Access", admin_desc: "Enter password to view table and management.",
+                unlock_btn: "Unlock", logout_btn: "Logout", table_heading: "📋 Overview of Created Links (Admin)",
+                th_short: "Short Link", th_target: "Target", th_clicks: "Clicks", th_tag: "Tag", th_actions: "Actions",
+                loading: "Loading links...", no_links: "No links here yet.", close: "Close",
+                domain_label: "Domain", disclaimer_title: "Legal Disclaimer:",
+                disclaimer_text: "The operator assumes no responsibility for the content of shortened links. All responsibility lies with the user who created the link.",
+                privacy_text: "Privacy Protection: At the code and database level, this service does not store any personal data, cookies, or IP addresses.",
+                copy_btn: "📋 Copy Link", delete_btn: "Delete", edit_btn: "Edit", edit_title: "✏️ Edit Link", save_btn: "Save Changes",
+                copied_alert: "Copied!", logout_alert: "You have been logged out.", wrong_pwd_alert: "Incorrect password!", conn_err_alert: "Server connection error.",
+                exist_alias_err: "Error: Alias already exists! Please choose another one.", save_err: "Error saving the link.", delete_confirm: "Are you sure you want to delete this link?",
+                target_placeholder: "https://example.com/long-address", alias_placeholder: "e.g. my-event", tag_placeholder: "e.g. Web", search_placeholder: "🔍 Search links...", pwd_placeholder: "Enter password...", public_tag: "Public",
+                count_single: "link", count_few: "links", count_many: "links"
+            },
+            de: {
+                title: "URL-Kürzer",
+                subtitle: "Schnelles und einfaches Kürzen von Links",
+                form_heading: "⚡ Neuen Kurzlink erstellen",
+                target_url_label: "Ziel-URL-Adresse *",
+                custom_alias_label: "Eigener Alias (optional)",
+                tag_label: "Tag / Kategorie",
+                expiration_label: "Ablaufdatum des Links",
+                exp_never: "Unbegrenzt", exp_1h: "1 Stunde", exp_24h: "24 Stunden", exp_7d: "7 Tage", exp_30d: "30 Tage",
+                submit_btn: "Link kürzen", link_created: "Link erfolgreich erstellt:", download_qr: "📷 QR-Code herunterladen",
+                admin_title: "🔐 Administrator-Zugriff", admin_desc: "Geben Sie das Passwort ein, um die Verwaltung anzuzeigen.",
+                unlock_btn: "Entsperren", logout_btn: "Abmelden", table_heading: "📋 Übersicht der erstellten Links (Admin)",
+                th_short: "Kurzer Link", th_target: "Ziel", th_clicks: "Klicks", th_tag: "Tag", th_actions: "Aktionen",
+                loading: "Links werden geladen...", no_links: "Noch keine Links vorhanden.", close: "Schließen",
+                domain_label: "Domain", disclaimer_title: "Haftungsausschluss:",
+                disclaimer_text: "Der Betreiber übernimmt keine Haftung für den Inhalt gekürzter Links. Die Verantwortung liegt beim Ersteller.",
+                privacy_text: "Datenschutz: Auf Code- und Datenbankebene werden keine personenbezogenen Daten, Cookies oder IP-Adressen gespeichert.",
+                copy_btn: "📋 Link kopieren", delete_btn: "Löschen", edit_btn: "Bearbeiten", edit_title: "✏️ Link bearbeiten", save_btn: "Speichern",
+                copied_alert: "Kopiert!", logout_alert: "Sie wurden abgemeldet.", wrong_pwd_alert: "Falsches Passwort!", conn_err_alert: "Serververbindungsfehler.",
+                exist_alias_err: "Fehler: Alias existiert bereits!", save_err: "Fehler beim Speichern des Links.", delete_confirm: "Möchten Sie diesen Link wirklich löschen?",
+                target_placeholder: "https://beispiel.de/lange-adresse", alias_placeholder: "z. B. mein-event", tag_placeholder: "z. B. Web", search_placeholder: "🔍 Links suchen...", pwd_placeholder: "Passwort eingeben...", public_tag: "Öffentlich",
+                count_single: "Link", count_few: "Links", count_many: "Links"
+            },
+            es: {
+                title: "Acortador de URL",
+                subtitle: "Acortamiento de enlaces rápido y sencillo",
+                form_heading: "⚡ Crear nuevo enlace corto",
+                target_url_label: "Dirección URL de destino *",
+                custom_alias_label: "Alias personalizado (opcional)",
+                tag_label: "Etiqueta / Categoría",
+                expiration_label: "Expiración del enlace",
+                exp_never: "Sin límite", exp_1h: "1 Hora", exp_24h: "24 Horas", exp_7d: "7 Días", exp_30d: "30 Días",
+                submit_btn: "Acortar enlace", link_created: "Enlace creado con éxito:", download_qr: "📷 Descargar código QR",
+                admin_title: "🔐 Acceso de Administrador", admin_desc: "Introduzca la contraseña para ver la gestión.",
+                unlock_btn: "Desbloquear", logout_btn: "Cerrar sesión", table_heading: "📋 Resumen de enlaces creados (Admin)",
+                th_short: "Enlace corto", th_target: "Destino", th_clicks: "Clics", th_tag: "Etiqueta", th_actions: "Acciones",
+                loading: "Cargando enlaces...", no_links: "Aún no hay enlaces aquí.", close: "Cerrar",
+                domain_label: "Dominio", disclaimer_title: "Aviso legal:",
+                disclaimer_text: "El operador no asume ninguna responsabilidad por el contenido de los enlaces acortados.",
+                privacy_text: "Protección de privacidad: No se almacenan datos personales, cookies ni direcciones IP.",
+                copy_btn: "📋 Copiar enlace", delete_btn: "Eliminar", edit_btn: "Editar", edit_title: "✏️ Editar enlace", save_btn: "Guardar cambios",
+                copied_alert: "¡Copiado!", logout_alert: "Ha cerrado sesión.", wrong_pwd_alert: "¡Contraseña incorrecta!", conn_err_alert: "Error de conexión con el servidor.",
+                exist_alias_err: "Error: ¡El alias ya existe!", save_err: "Error al guardar el enlace.", delete_confirm: "¿Realmente desea eliminar este enlace?",
+                target_placeholder: "https://ejemplo.com/direccion-larga", alias_placeholder: "ej. mi-evento", tag_placeholder: "ej. Web", search_placeholder: "🔍 Buscar enlaces...", pwd_placeholder: "Introduzca la contraseña...", public_tag: "Público",
+                count_single: "enlace", count_few: "enlaces", count_many: "enlaces"
+            },
+            sk: {
+                title: "Skracovač odkazov",
+                subtitle: "Rýchle a jednoduché skracovanie odkazov",
+                form_heading: "⚡ Vytvoriť nový skrátený odkaz",
+                target_url_label: "Cieľová URL adresa *",
+                custom_alias_label: "Vlastný alias (voliteľné)",
+                tag_label: "Štítok / Kategória",
+                expiration_label: "Platnosť odkazu",
+                exp_never: "Bez obmedzenia", exp_1h: "1 Hodina", exp_24h: "24 Hodín", exp_7d: "7 Dní", exp_30d: "30 Dní",
+                submit_btn: "Skrátiť odkaz", link_created: "Odkaz úspešne vytvorený:", download_qr: "📷 Stiahnuť QR kód",
+                admin_title: "🔐 Administrátorský prístup", admin_desc: "Zadajte heslo pre zobrazenie tabuľky a mazanie.",
+                unlock_btn: "Odomknúť", logout_btn: "Odhlásiť", table_heading: "📋 Prehľad vytvorených odkazov (Admin)",
+                th_short: "Krátky odkaz", th_target: "Cieľ", th_clicks: "Kliknutia", th_tag: "Štítok", th_actions: "Akcie",
+                loading: "Načítavam odpovede...", no_links: "Zatiaľ tu nie sú žiadne odpovede.", close: "Zatvoriť",
+                domain_label: "Doména", disclaimer_title: "Právna doložka:",
+                disclaimer_text: "Prevádzkovateľ nenesie žiadnu zodpovednosť za obsah skrátených odkazov. Všetku zodpovednosť nesie používateľ, ktorý odkaz vytvoril.",
+                privacy_text: "Ochrana súkromia: Služba na úrovni kódu a databázy neukladá žiadne osobné údaje, cookies ani IP adresy návštevníkov.",
+                copy_btn: "📋 Kopírovať odkaz", delete_btn: "Mazať", edit_btn: "Upraviť", edit_title: "✏️ Úprava odkazu", save_btn: "Uložiť zmeny",
+                copied_alert: "Skopírované!", logout_alert: "Boli ste odhlásený.", wrong_pwd_alert: "Nesprávne heslo!", conn_err_alert: "Chyba pripojenia k serveru.",
+                exist_alias_err: "Chyba: Skratka už existuje! Zvoľte prosím iný alias.", save_err: "Chyba pri ukladaní odkazu.", delete_confirm: "Naozaj chcete vymazať tento odkaz?",
+                target_placeholder: "https://priklad.sk/dlha-adresa", alias_placeholder: "napr. moja-akcia", tag_placeholder: "napr. Web", search_placeholder: "🔍 Hľadať v odkazoch...", pwd_placeholder: "Zadajte heslo...", public_tag: "Verejné",
+                count_single: "odkaz", count_few: "odkazy", count_many: "odkazov"
+            },
+            pl: {
+                title: "Skracacz linków",
+                subtitle: "Szybkie i proste skracanie linków",
+                form_heading: "⚡ Utwórz nowy skrócony link",
+                target_url_label: "Docelowy adres URL *",
+                custom_alias_label: "Własny alias (opcjonalnie)",
+                tag_label: "Etykieta / Kategoria",
+                expiration_label: "Ważność linku",
+                exp_never: "Bez limitu", exp_1h: "1 Godzina", exp_24h: "24 Godziny", exp_7d: "7 Dni", exp_30d: "30 Dni",
+                submit_btn: "Skróć link", link_created: "Link został pomyślnie utworzony:", download_qr: "📷 Pobierz kod QR",
+                admin_title: "🔐 Dostęp administratora", admin_desc: "Wprowadź hasło, aby wyświetlić panel i zarządzanie.",
+                unlock_btn: "Odblokuj", logout_btn: "Wyloguj", table_heading: "📋 Przegląd utworzonych linków (Admin)",
+                th_short: "Krótki link", th_target: "Cel", th_clicks: "Kliknięcia", th_tag: "Etykieta", th_actions: "Akcje",
+                loading: "Ładowanie linków...", no_links: "Brak linków do wyświetlenia.", close: "Zamknij",
+                domain_label: "Domena", disclaimer_title: "Zastrzeżenie prawne:",
+                disclaimer_text: "Operator nie ponosi żadnej odpowiedzialności za treść skróconych linków. Pełną odpowiedzialność ponosi użytkownik.",
+                privacy_text: "Ochrona prywatności: Usługa nie przechowuje żadnych danych osobowych, plików cookie ani adresów IP.",
+                copy_btn: "📋 Kopiuj link", delete_btn: "Usuń", edit_btn: "Edytuj", edit_title: "✏️ Edycja linku", save_btn: "Zapisz zmiany",
+                copied_alert: "Skopiowano!", logout_alert: "Zostałeś wylogowany.", wrong_pwd_alert: "Nieprawidłowe hasło!", conn_err_alert: "Błąd połączenia z serwerem.",
+                exist_alias_err: "Błąd: Alias już istnieje! Wybierz inny.", save_err: "Błąd podczas zapisywania linku.", delete_confirm: "Czy na pewno chcesz usunąć ten link?",
+                target_placeholder: "https://przyklad.pl/dlugi-adres", alias_placeholder: "np. moje-wydarzenie", tag_placeholder: "np. Web", search_placeholder: "🔍 Szukaj w linkach...", pwd_placeholder: "Wprowadź hasło...", public_tag: "Publiczne",
+                count_single: "link", count_few: "linki", count_many: "linków"
             }
         };
 
         let currentLang = localStorage.getItem('iamhonza_lang') || 'cs';
-        let allLinksData = {}; // Uložení dat pro lokální vyhledávání
+        let allLinksData = {};
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('iamhonza_lang', currentLang);
+            updateLanguageUI();
+        }
 
         function updateLanguageUI() {
             const t = translations[currentLang];
             document.documentElement.lang = currentLang;
-            document.getElementById('lang-toggle-btn').textContent = currentLang === 'cs' ? '🇨🇿 CZ' : '🇬🇧 EN';
+
+            const selectEl = document.getElementById('lang-select');
+            if (selectEl) selectEl.value = currentLang;
 
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
@@ -327,12 +371,6 @@
             if (document.getElementById('admin-content').style.display === 'block') {
                 renderLinksTable(allLinksData);
             }
-        }
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'cs' ? 'en' : 'cs';
-            localStorage.setItem('iamhonza_lang', currentLang);
-            updateLanguageUI();
         }
 
         updateLanguageUI();
@@ -473,7 +511,7 @@
                     <td style="text-align: right;">
                         <button onclick="showQrModal('${fullShortUrl}', '${alias}')" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.3rem;">QR</button>
                         <button onclick="openEditModal('${alias}', '${targetUrl}', '${tag}')" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.3rem;">${t.edit_btn}</button>
-                        <button onclick="navigator.clipboard.writeText('${fullShortUrl}').then(()=>alert('${t.copied_alert}'))" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.3rem;">Kopírovat</button>
+                        <button onclick="navigator.clipboard.writeText('${fullShortUrl}').then(()=>alert('${t.copied_alert}'))" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.3rem;">${t.copy_btn}</button>
                         <button onclick="deleteLink('${alias}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:600; font-size:0.75rem;">${t.delete_btn}</button>
                     </td>
                 `;
