@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shorter-Link | Veřejný zkracovač odkazů</title>
+    <!-- Knihovna pro generování QR kódů přímo v prohlížeči (Privacy-First) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
             --bg-main: #020617; --bg-card: #0f172a; --text-main: #f8fafc;
@@ -29,6 +31,8 @@
         label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
         button.primary { width: 100%; background-color: var(--accent); color: white; border: none; padding: 0.875rem; font-weight: 600; border-radius: 0.75rem; cursor: pointer; transition: background 0.2s; font-size: 0.875rem; }
         button.primary:hover { background-color: var(--accent-hover); }
+        button.secondary { background-color: var(--border-color); color: var(--text-main); border: none; padding: 0.5rem 0.75rem; font-weight: 500; border-radius: 0.5rem; cursor: pointer; font-size: 0.75rem; margin-top: 0.5rem; }
+        button.secondary:hover { opacity: 0.9; }
         table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
         th { text-align: left; padding-bottom: 0.75rem; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border-color); }
         td { padding: 0.875rem 0; border-bottom: 1px solid var(--border-color); }
@@ -36,6 +40,12 @@
         .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1rem 0 1rem; }
         .badge { background-color: var(--border-color); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
         .row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        
+        /* Modal pro QR kód */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-body { background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 1rem; text-align: center; max-width: 320px; width: 90%; }
+        .qr-wrapper { background: white; padding: 1rem; border-radius: 0.5rem; display: inline-block; margin: 1rem 0; }
+        
         @media(max-width: 600px) { .row-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -76,8 +86,15 @@
                 </div>
                 <button type="submit" class="primary">Zkrátit odkaz</button>
             </form>
-            <div id="result-box" style="display: none; margin-top: 1rem; padding: 0.75rem; background: var(--input-bg); border-radius: 0.5rem; text-align: center; font-size: 0.875rem;">
-                Odkaz úspěšně vytvořen: <a id="result-link" href="#" target="_blank" style="color: #3b82f6; font-weight: bold;"></a>
+            
+            <div id="result-box" style="display: none; margin-top: 1rem; padding: 1rem; background: var(--input-bg); border-radius: 0.5rem; text-align: center; font-size: 0.875rem;">
+                <div>Odkaz úspěšně vytvořen: <a id="result-link" href="#" target="_blank" style="color: #3b82f6; font-weight: bold;"></a></div>
+                <div class="qr-wrapper">
+                    <div id="result-qrcode"></div>
+                </div>
+                <div>
+                    <button onclick="downloadQrCode('result-qrcode', 'zkraceny-odkaz-qr.png')" class="secondary">📷 Stáhnout QR kód</button>
+                </div>
             </div>
         </div>
 
@@ -113,6 +130,19 @@
         </div>
     </main>
 
+    <!-- Modal dialog pro náhled QR kódu z administrace -->
+    <div id="qr-modal" class="modal-overlay" onclick="closeQrModal(event)">
+        <div class="modal-body">
+            <h3 style="margin-top:0; font-size:1rem;" id="modal-alias-title">QR Kód</h3>
+            <div class="qr-wrapper">
+                <div id="modal-qrcode"></div>
+            </div>
+            <br>
+            <button id="modal-download-btn" class="secondary">📷 Stáhnout QR kód</button>
+            <button onclick="document.getElementById('qr-modal').style.display='none'" class="secondary" style="background: transparent; border: 1px solid var(--border-color);">Zavřít</button>
+        </div>
+    </div>
+
     <footer>
         <p style="font-weight: 500; margin: 0 0 0.5rem 0;">
             Shorter-Link • Doména: link.iamhonza.eu • 
@@ -122,12 +152,14 @@
             <strong>Právní doložka:</strong> Provozovatel nenesete žádnou odpovědnost za obsah zkrácených odkazů. Veškerou odpovědnost nese uživatel, který odkaz vytvořil. Služba nesmí být využívána k šíření spamu, malware nebo nelegálního obsahu. V případě zneužití kontaktujte: <a href="mailto:report@iamhonza.eu" style="color: #3b82f6; text-decoration: none;">report@iamhonza.eu</a>
         </p>
         <p style="color: var(--text-muted); margin: 0; font-size: 0.7rem;">
-            Ochrana soukromí: Služba neukládá žádné osobní údaje ani IP adresy návštěvníků klikajících na odkazy. Ukládá se pouze cílová URL adresa a vygenerovaný alias.
+            Ochrana soukromí: Služba na úrovni kódu a databáze neukládá žádné osobní údaje, cookies ani IP adresy návštěvníků. Provoz podléhá standardním pravidlům ochrany soukromí společnosti Cloudflare.
         </p>
     </footer>
 
     <script>
         let password = localStorage.getItem('iamhonza_pwd') || '';
+        let resultQrObject = null;
+        let modalQrObject = null;
 
         if (password) {
             checkAutoLogin();
@@ -253,6 +285,7 @@
                         <td style="color: var(--text-muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${targetUrl}">${targetUrl}</td>
                         <td><span class="badge">${tag}</span></td>
                         <td style="text-align: right;">
+                            <button onclick="showQrModal('${fullShortUrl}', '${alias}')" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.5rem;">QR</button>
                             <button onclick="navigator.clipboard.writeText('${fullShortUrl}').then(()=>alert('Zkopírováno!'))" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.5rem;">Kopírovat</button>
                             <button onclick="deleteLink('${alias}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:600; font-size:0.75rem;">Smazat</button>
                         </td>
@@ -286,6 +319,16 @@
                 const fullUrl = `https://link.iamhonza.eu/${alias}`;
                 linkEl.href = fullUrl;
                 linkEl.textContent = fullUrl;
+                
+                // Generování QR kódu pro vytvořený odkaz
+                const qrContainer = document.getElementById('result-qrcode');
+                qrContainer.innerHTML = '';
+                new QRCode(qrContainer, {
+                    text: fullUrl,
+                    width: 128,
+                    height: 128
+                });
+
                 box.style.display = 'block';
 
                 if (document.getElementById('admin-content').style.display === 'block') {
@@ -313,6 +356,56 @@
                 } catch(e) {
                     alert('Chyba připojení k serveru.');
                 }
+            }
+        }
+
+        /* Funkce pro stažení vygenerovaného QR kódu jako obrázku .png */
+        function downloadQrCode(containerId, filename) {
+            const container = document.getElementById(containerId);
+            const img = container.querySelector('img');
+            const canvas = container.querySelector('canvas');
+            
+            let imageSrc = '';
+            if (img && img.src) {
+                imageSrc = img.src;
+            } else if (canvas) {
+                imageSrc = canvas.toDataURL('image/png');
+            }
+
+            if (imageSrc) {
+                const a = document.createElement('a');
+                a.href = imageSrc;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else {
+                alert('QR kód se nepodařilo připravit ke stažení.');
+            }
+        }
+
+        /* Zobrazení QR kódu v popupu (admin) */
+        function showQrModal(url, alias) {
+            document.getElementById('modal-alias-title').textContent = `QR kód pro /${alias}`;
+            const modalQrContainer = document.getElementById('modal-qrcode');
+            modalQrContainer.innerHTML = '';
+            
+            new QRCode(modalQrContainer, {
+                text: url,
+                width: 160,
+                height: 160
+            });
+
+            document.getElementById('modal-download-btn').onclick = function() {
+                downloadQrCode('modal-qrcode', `qr-${alias}.png`);
+            };
+
+            document.getElementById('qr-modal').style.display = 'flex';
+        }
+
+        function closeQrModal(e) {
+            if (e.target.id === 'qr-modal') {
+                document.getElementById('qr-modal').style.display = 'none';
             }
         }
     </script>
