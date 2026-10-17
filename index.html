@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shorter-Link | Veřejný zkracovač odkazů</title>
+    <title>Shorter-Link | Veřejný zkracovač odkazů / Public Link Shortener</title>
     <!-- Knihovna pro generování QR kódů přímo v prohlížeči (Privacy-First) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
@@ -53,8 +53,9 @@
     <div class="top-nav">
         <div style="font-weight: bold; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;"><span>🔗</span> Shorter-Link</div>
         <div style="display: flex; gap: 0.5rem;">
+            <button id="lang-toggle-btn" onclick="toggleLanguage()" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;">🇨🇿 CZ</button>
             <button id="admin-toggle-btn" onclick="toggleAdminPanel()" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;">🔒 Admin</button>
-            <button id="logout-btn" onclick="logout()" style="display: none; background: #ef4444; border: none; color: white; padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;">Odhlásit</button>
+            <button id="logout-btn" onclick="logout()" style="display: none; background: #ef4444; border: none; color: white; padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;" data-i18n="logout_btn">Odhlásit</button>
             <button id="theme-toggle" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; font-size: 0.75rem; font-weight: 500;">
                 <span id="theme-icon">🌙</span>
             </button>
@@ -63,66 +64,66 @@
 
     <main>
         <div style="text-align: center; margin-bottom: 2rem;">
-            <h1 style="font-size: 2rem; font-weight: 800; margin: 0 0 0.5rem 0;">Zkracovač odkazů</h1>
-            <p style="color: var(--text-muted); font-size: 0.875rem; margin: 0;">Rychlé a jednoduché zkracování odkazů</p>
+            <h1 style="font-size: 2rem; font-weight: 800; margin: 0 0 0.5rem 0;" data-i18n="title">Zkracovač odkazů</h1>
+            <p style="color: var(--text-muted); font-size: 0.875rem; margin: 0;" data-i18n="subtitle">Rychlé a jednoduché zkracování odkazů</p>
         </div>
 
         <div class="card">
-            <h2 style="font-size: 1rem; font-weight: 600; margin-top: 0; margin-bottom: 1.25rem; color: #3b82f6;">⚡ Vytvořit nový zkrácený odkaz</h2>
+            <h2 style="font-size: 1rem; font-weight: 600; margin-top: 0; margin-bottom: 1.25rem; color: #3b82f6;" data-i18n="form_heading">⚡ Vytvořit nový zkrácený odkaz</h2>
             <form id="link-form">
                 <div>
-                    <label>Cílová URL adresa *</label>
+                    <label data-i18n="target_url_label">Cílová URL adresa *</label>
                     <input type="url" id="target-url" required placeholder="https://priklad.cz/dlouha-adresa">
                 </div>
                 <div class="row-grid">
                     <div>
-                        <label>Vlastní alias (volitelné)</label>
+                        <label data-i18n="custom_alias_label">Vlastní alias (volitelné)</label>
                         <input type="text" id="custom-alias" placeholder="např. moje-akce">
                     </div>
                     <div>
-                        <label>Štítek / Kategorie</label>
+                        <label data-i18n="tag_label">Štítek / Kategorie</label>
                         <input type="text" id="link-tag" placeholder="např. Web">
                     </div>
                 </div>
-                <button type="submit" class="primary">Zkrátit odkaz</button>
+                <button type="submit" class="primary" data-i18n="submit_btn">Zkrátit odkaz</button>
             </form>
             
             <div id="result-box" style="display: none; margin-top: 1rem; padding: 1rem; background: var(--input-bg); border-radius: 0.5rem; text-align: center; font-size: 0.875rem;">
-                <div>Odkaz úspěšně vytvořen: <a id="result-link" href="#" target="_blank" style="color: #3b82f6; font-weight: bold;"></a></div>
+                <div><span data-i18n="link_created">Odkaz úspěšně vytvořen:</span> <a id="result-link" href="#" target="_blank" style="color: #3b82f6; font-weight: bold;"></a></div>
                 <div class="qr-wrapper">
                     <div id="result-qrcode"></div>
                 </div>
                 <div>
-                    <button onclick="downloadQrCode('result-qrcode', 'zkraceny-odkaz-qr.png')" class="secondary">📷 Stáhnout QR kód</button>
+                    <button onclick="downloadQrCode('result-qrcode', 'zkraceny-odkaz-qr.png')" class="secondary" data-i18n="download_qr">📷 Stáhnout QR kód</button>
                 </div>
             </div>
         </div>
 
         <div id="auth-card" class="card" style="display: none; max-width: 400px; margin: 0 auto 2rem auto; text-align: center;">
-            <h2 style="font-size: 1rem; font-weight: 600; margin-top: 0; color: #3b82f6;">🔐 Administrátorský přístup</h2>
-            <p style="font-size: 0.75rem; color: var(--text-muted);">Zadejte heslo pro zobrazení tabulky a mazání.</p>
+            <h2 style="font-size: 1rem; font-weight: 600; margin-top: 0; color: #3b82f6;" data-i18n="admin_title">🔐 Administrátorský přístup</h2>
+            <p style="font-size: 0.75rem; color: var(--text-muted);" data-i18n="admin_desc">Zadejte heslo pro zobrazení tabulky a mazání.</p>
             <input type="password" id="admin-password" placeholder="Zadejte heslo...">
-            <button onclick="login()" class="primary">Odemknout</button>
+            <button onclick="login()" class="primary" data-i18n="unlock_btn">Odemknout</button>
         </div>
 
         <div id="admin-content" style="display: none;">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2 style="font-size: 1rem; font-weight: 600; margin: 0;">📋 Přehled vytvořených odkazů (Admin)</h2>
+                    <h2 style="font-size: 1rem; font-weight: 600; margin: 0;" data-i18n="table_heading">📋 Přehled vytvořených odkazů (Admin)</h2>
                     <span id="link-count" class="badge">Načítám...</span>
                 </div>
                 <div style="overflow-x: auto;">
                     <table>
                         <thead>
                             <tr>
-                                <th>Krátký odkaz</th>
-                                <th>Cíl</th>
-                                <th>Štítek</th>
-                                <th style="text-align: right;">Akce</th>
+                                <th data-i18n="th_short">Krátký odkaz</th>
+                                <th data-i18n="th_target">Cíl</th>
+                                <th data-i18n="th_tag">Štítek</th>
+                                <th style="text-align: right;" data-i18n="th_actions">Akce</th>
                             </tr>
                         </thead>
                         <tbody id="links-table-body">
-                            <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem 0;">Načítám odkazy...</td></tr>
+                            <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem 0;" data-i18n="loading">Načítám odkazy...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -138,28 +139,154 @@
                 <div id="modal-qrcode"></div>
             </div>
             <br>
-            <button id="modal-download-btn" class="secondary">📷 Stáhnout QR kód</button>
-            <button onclick="document.getElementById('qr-modal').style.display='none'" class="secondary" style="background: transparent; border: 1px solid var(--border-color);">Zavřít</button>
+            <button id="modal-download-btn" class="secondary" data-i18n="download_qr">📷 Stáhnout QR kód</button>
+            <button onclick="document.getElementById('qr-modal').style.display='none'" class="secondary" style="background: transparent; border: 1px solid var(--border-color);" data-i18n="close">Zavřít</button>
         </div>
     </div>
 
     <footer>
         <p style="font-weight: 500; margin: 0 0 0.5rem 0;">
-            Shorter-Link • Doména: link.iamhonza.eu • 
+            Shorter-Link • <span data-i18n="domain_label">Doména</span>: link.iamhonza.eu • 
             <a href="https://github.com/IamhonzaEU/shorter-link" target="_blank" style="color: #3b82f6; text-decoration: none;">GitHub Source Code</a> (MIT License)
         </p>
         <p style="color: var(--text-muted); margin: 0 0 0.5rem 0; font-size: 0.7rem;">
-            <strong>Právní doložka:</strong> Provozovatel nenesete žádnou odpovědnost za obsah zkrácených odkazů. Veškerou odpovědnost nese uživatel, který odkaz vytvořil. Služba nesmí být využívána k šíření spamu, malware nebo nelegálního obsahu. V případě zneužití kontaktujte: <a href="mailto:report@iamhonza.eu" style="color: #3b82f6; text-decoration: none;">report@iamhonza.eu</a>
+            <strong data-i18n="disclaimer_title">Právní doložka:</strong> <span data-i18n="disclaimer_text">Provozovatel nenese žádnou odpovědnost za obsah zkrácených odkazů. Veškerou odpovědnost nese uživatel, který odkaz vytvořil. Služba nesmí být využívána k šíření spamu, malware nebo nelegálního obsahu. V případě zneužití kontaktujte:</span> <a href="mailto:report@iamhonza.eu" style="color: #3b82f6; text-decoration: none;">report@iamhonza.eu</a>
         </p>
-        <p style="color: var(--text-muted); margin: 0; font-size: 0.7rem;">
+        <p style="color: var(--text-muted); margin: 0; font-size: 0.7rem;" data-i18n="privacy_text">
             Ochrana soukromí: Služba na úrovni kódu a databáze neukládá žádné osobní údaje, cookies ani IP adresy návštěvníků. Provoz podléhá standardním pravidlům ochrany soukromí společnosti Cloudflare.
         </p>
     </footer>
 
     <script>
+        /* Překladové slovníky pro CZ / EN */
+        const translations = {
+            cs: {
+                title: "Zkracovač odkazů",
+                subtitle: "Rychlé a jednoduché zkracování odkazů",
+                form_heading: "⚡ Vytvořit nový zkrácený odkaz",
+                target_url_label: "Cílová URL adresa *",
+                custom_alias_label: "Vlastní alias (volitelné)",
+                tag_label: "Štítek / Kategorie",
+                submit_btn: "Zkrátit odkaz",
+                link_created: "Odkaz úspěšně vytvořen:",
+                download_qr: "📷 Stáhnout QR kód",
+                admin_title: "🔐 Administrátorský přístup",
+                admin_desc: "Zadejte heslo pro zobrazení tabulky a mazání.",
+                unlock_btn: "Odemknout",
+                logout_btn: "Odhlásit",
+                table_heading: "📋 Přehled vytvořených odkazů (Admin)",
+                th_short: "Krátký odkaz",
+                th_target: "Cíl",
+                th_tag: "Štítek",
+                th_actions: "Akce",
+                loading: "Načítám odkazy...",
+                no_links: "Zatím zde nejsou žádné odkazy.",
+                close: "Zavřít",
+                domain_label: "Doména",
+                disclaimer_title: "Právní doložka:",
+                disclaimer_text: "Provozovatel nenese žádnou odpovědnost za obsah zkrácených odkazů. Veškerou odpovědnost nese uživatel, který odkaz vytvořil. Služba nesmí být využívána k šíření spamu, malware nebo nelegálního obsahu. V případě zneužití kontaktujte:",
+                privacy_text: "Ochrana soukromí: Služba na úrovni kódu a databáze neukládá žádné osobní údaje, cookies ani IP adresy návštěvníků. Provoz podléhá standardním pravidlům ochrany soukromí společnosti Cloudflare.",
+                copy_btn: "Kopírovat",
+                delete_btn: "Smazat",
+                copied_alert: "Zkopírováno!",
+                logout_alert: "Byl jste odhlášen.",
+                wrong_pwd_alert: "Nesprávné heslo!",
+                conn_err_alert: "Chyba připojení k serveru.",
+                exist_alias_err: "Chyba: Zkratka již existuje! Zvolte prosím jiný alias.",
+                save_err: "Chyba při ukládání odkazu.",
+                delete_confirm: "Opravdu chcete smazat tento odkaz?",
+                target_placeholder: "https://priklad.cz/dlouha-adresa",
+                alias_placeholder: "např. moje-akce",
+                tag_placeholder: "např. Web",
+                pwd_placeholder: "Zadejte heslo...",
+                public_tag: "Veřejné",
+                count_single: "odkaz",
+                count_few: "odkazy",
+                count_many: "odkazů"
+            },
+            en: {
+                title: "URL Shortener",
+                subtitle: "Fast and simple link shortening",
+                form_heading: "⚡ Create new short link",
+                target_url_label: "Target URL address *",
+                custom_alias_label: "Custom alias (optional)",
+                tag_label: "Tag / Category",
+                submit_btn: "Shorten link",
+                link_created: "Link successfully created:",
+                download_qr: "📷 Download QR Code",
+                admin_title: "🔐 Administrator Access",
+                admin_desc: "Enter password to view table and management.",
+                unlock_btn: "Unlock",
+                logout_btn: "Logout",
+                table_heading: "📋 Overview of Created Links (Admin)",
+                th_short: "Short Link",
+                th_target: "Target",
+                th_tag: "Tag",
+                th_actions: "Actions",
+                loading: "Loading links...",
+                no_links: "No links here yet.",
+                close: "Close",
+                domain_label: "Domain",
+                disclaimer_title: "Legal Disclaimer:",
+                disclaimer_text: "The operator assumes no responsibility for the content of shortened links. All responsibility lies with the user who created the link. The service must not be used to distribute spam, malware, or illegal content. In case of abuse contact:",
+                privacy_text: "Privacy Protection: At the code and database level, this service does not store any personal data, cookies, or IP addresses. Operations follow standard Cloudflare privacy policies.",
+                copy_btn: "Copy",
+                delete_btn: "Delete",
+                copied_alert: "Copied!",
+                logout_alert: "You have been logged out.",
+                wrong_pwd_alert: "Incorrect password!",
+                conn_err_alert: "Server connection error.",
+                exist_alias_err: "Error: Alias already exists! Please choose another one.",
+                save_err: "Error saving the link.",
+                delete_confirm: "Are you sure you want to delete this link?",
+                target_placeholder: "https://example.com/long-address",
+                alias_placeholder: "e.g. my-event",
+                tag_placeholder: "e.g. Web",
+                pwd_placeholder: "Enter password...",
+                public_tag: "Public",
+                count_single: "link",
+                count_few: "links",
+                count_many: "links"
+            }
+        };
+
+        let currentLang = localStorage.getItem('iamhonza_lang') || 'cs';
+
+        function updateLanguageUI() {
+            const t = translations[currentLang];
+            document.documentElement.lang = currentLang;
+
+            // Změna textu tlačítka přepínače
+            document.getElementById('lang-toggle-btn').textContent = currentLang === 'cs' ? '🇨🇿 CZ' : '🇬🇧 EN';
+
+            // Překlad všech prvků s atributem data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) el.textContent = t[key];
+            });
+
+            // Překlad placeholderů
+            document.getElementById('target-url').placeholder = t.target_placeholder;
+            document.getElementById('custom-alias').placeholder = t.alias_placeholder;
+            document.getElementById('link-tag').placeholder = t.tag_placeholder;
+            document.getElementById('admin-password').placeholder = t.pwd_placeholder;
+
+            // Pokud je načtená tabulka administrace, přenačteme ji s novými překlady
+            if (document.getElementById('admin-content').style.display === 'block') {
+                loadLinks();
+            }
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'cs' ? 'en' : 'cs';
+            localStorage.setItem('iamhonza_lang', currentLang);
+            updateLanguageUI();
+        }
+
+        // Inicializace jazyka
+        updateLanguageUI();
+
         let password = localStorage.getItem('iamhonza_pwd') || '';
-        let resultQrObject = null;
-        let modalQrObject = null;
 
         if (password) {
             checkAutoLogin();
@@ -194,7 +321,7 @@
             document.getElementById('auth-card').style.display = 'none';
             document.getElementById('logout-btn').style.display = 'none';
             document.getElementById('admin-toggle-btn').style.display = 'block';
-            alert('Byl jste odhlášen.');
+            alert(translations[currentLang].logout_alert);
         }
 
         async function checkAutoLogin() {
@@ -223,11 +350,11 @@
                     document.getElementById('logout-btn').style.display = 'block';
                     loadLinks();
                 } else {
-                    alert('Nesprávné heslo!');
+                    alert(translations[currentLang].wrong_pwd_alert);
                     localStorage.removeItem('iamhonza_pwd');
                 }
             } catch(e) {
-                alert('Chyba připojení k serveru.');
+                alert(translations[currentLang].conn_err_alert);
             }
         }
 
@@ -252,6 +379,7 @@
         });
 
         async function loadLinks() {
+            const t = translations[currentLang];
             try {
                 const res = await fetch('/api/links', {
                     headers: { 'Authorization': `Bearer ${password}` }
@@ -266,17 +394,21 @@
                 tbody.innerHTML = '';
                 const keys = Object.keys(links);
 
-                countBadge.textContent = `${keys.length} ${keys.length === 1 ? 'odkaz' : keys.length >= 2 && keys.length <= 4 ? 'odkazy' : 'odkazů'}`;
+                let labelCount = t.count_many;
+                if (keys.length === 1) labelCount = t.count_single;
+                else if (keys.length >= 2 && keys.length <= 4) labelCount = t.count_few;
+
+                countBadge.textContent = `${keys.length} ${labelCount}`;
 
                 if (keys.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem 0;">Zatím zde nejsou žádné odkazy.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem 0;">${t.no_links}</td></tr>`;
                     return;
                 }
 
                 keys.forEach(alias => {
                     const data = links[alias];
                     const targetUrl = typeof data === 'object' ? data.url : data;
-                    const tag = typeof data === 'object' ? (data.tag || 'Veřejné') : 'Veřejné';
+                    const tag = typeof data === 'object' ? (data.tag || t.public_tag) : t.public_tag;
                     const fullShortUrl = `https://link.iamhonza.eu/${alias}`;
 
                     const tr = document.createElement('tr');
@@ -286,8 +418,8 @@
                         <td><span class="badge">${tag}</span></td>
                         <td style="text-align: right;">
                             <button onclick="showQrModal('${fullShortUrl}', '${alias}')" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.5rem;">QR</button>
-                            <button onclick="navigator.clipboard.writeText('${fullShortUrl}').then(()=>alert('Zkopírováno!'))" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.5rem;">Kopírovat</button>
-                            <button onclick="deleteLink('${alias}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:600; font-size:0.75rem;">Smazat</button>
+                            <button onclick="navigator.clipboard.writeText('${fullShortUrl}').then(()=>alert('${t.copied_alert}'))" style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:600; font-size:0.75rem; margin-right:0.5rem;">${t.copy_btn}</button>
+                            <button onclick="deleteLink('${alias}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:600; font-size:0.75rem;">${t.delete_btn}</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -297,9 +429,10 @@
 
         document.getElementById('link-form').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const t = translations[currentLang];
             const targetUrl = document.getElementById('target-url').value.trim();
             let alias = document.getElementById('custom-alias').value.trim();
-            const tag = document.getElementById('link-tag').value.trim() || 'Veřejné';
+            const tag = document.getElementById('link-tag').value.trim() || t.public_tag;
 
             if (!alias) {
                 alias = Math.random().toString(36).substring(2, 7);
@@ -335,14 +468,15 @@
                     loadLinks();
                 }
             } else if (res.status === 409) {
-                alert(`Chyba: Zkratka "/${alias}" již existuje! Zvolte prosím jiný alias.`);
+                alert(t.exist_alias_err);
             } else {
-                alert('Chyba při ukládání odkazu.');
+                alert(t.save_err);
             }
         });
 
         async function deleteLink(alias) {
-            if (confirm(`Opravdu chcete smazat odkaz /${alias}?`)) {
+            const t = translations[currentLang];
+            if (confirm(`${t.delete_confirm} (/${alias})`)) {
                 try {
                     const res = await fetch(`/api/links?alias=${encodeURIComponent(alias)}`, { 
                         method: 'DELETE',
@@ -351,10 +485,10 @@
                     if (res.ok) {
                         loadLinks();
                     } else {
-                        alert('Chyba při mazání odkazu.');
+                        alert(t.save_err);
                     }
                 } catch(e) {
-                    alert('Chyba připojení k serveru.');
+                    alert(t.conn_err_alert);
                 }
             }
         }
@@ -380,13 +514,13 @@
                 a.click();
                 document.body.removeChild(a);
             } else {
-                alert('QR kód se nepodařilo připravit ke stažení.');
+                alert('QR error');
             }
         }
 
         /* Zobrazení QR kódu v popupu (admin) */
         function showQrModal(url, alias) {
-            document.getElementById('modal-alias-title').textContent = `QR kód pro /${alias}`;
+            document.getElementById('modal-alias-title').textContent = `QR /${alias}`;
             const modalQrContainer = document.getElementById('modal-qrcode');
             modalQrContainer.innerHTML = '';
             
