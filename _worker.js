@@ -24,7 +24,6 @@ export default {
           const currentCount = recentRequests ? parseInt(recentRequests) + 1 : 1;
           await env.SHORTER_KV.put(rateLimitKey, currentCount.toString(), { expirationTtl: 10 });
         } catch (e) {
-          // Pokud by selhalo KV, nezastavujeme provoz, ale pokračujeme dál
           console.error("Rate limit error:", e);
         }
       }
@@ -45,7 +44,6 @@ export default {
         const list = await env.SHORTER_KV.list();
         const links = {};
         for (const key of list.keys) {
-          // Ignorujeme interní klíče jako rate-limity
           if (key.name.startsWith('rate_limit_')) continue;
           
           const val = await env.SHORTER_KV.get(key.name);
@@ -68,6 +66,25 @@ export default {
 
           if (!alias || !targetUrl) {
             return new Response(JSON.stringify({ error: 'Missing alias or url' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+
+          // Validace schématu URL (ochrana proti javascript:, data: a jiným nebezpečným schématům)
+          let parsedUrl;
+          try {
+            parsedUrl = new URL(targetUrl);
+          } catch (e) {
+            return new Response(JSON.stringify({ error: 'Invalid URL format' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+
+          // Povolení výhradně standardních webových protokolů http a https
+          if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+            return new Response(JSON.stringify({ error: 'Only http and https URLs are allowed' }), {
               status: 400,
               headers: { 'Content-Type': 'application/json' }
             });
@@ -97,7 +114,6 @@ export default {
             clicks: clicks
           };
 
-          // Uložení do KV s volitelnou expirací (TTL v sekundách)
           const putOptions = {};
           if (ttl && parseInt(ttl) > 0) {
             putOptions.expirationTtl = parseInt(ttl);
@@ -156,10 +172,8 @@ export default {
           clicks = (parsed.clicks || 0) + 1;
           parsed.clicks = clicks;
           
-          // Asynchronní aktualizace počítadla kliknutí na pozadí
           ctx.waitUntil(env.SHORTER_KV.put(alias, JSON.stringify(parsed)));
         } catch (e) {
-          // Zpětná kompatibilita pro staré čisté URL řetězce v KV
           ctx.waitUntil(env.SHORTER_KV.put(alias, JSON.stringify({ url: targetUrl, clicks: 1, tag: 'Veřejné' })));
         }
 
@@ -167,8 +181,6 @@ export default {
       }
     }
 
-    // Výchozí akce – pokud požadavek neodpovídá API ani zkrácenému odkazu,
-    // Cloudflare Pages automaticky obslouží statické soubory (index.html apod.)
     return env.ASSETS.fetch(request);
   }
 };
