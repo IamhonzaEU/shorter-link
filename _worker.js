@@ -1,6 +1,3 @@
-// Globální paměťová cache pro okamžitý rate-limiting (rychlejší než KV pro krátká okna)
-const rateLimitCache = new Map();
-
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -10,41 +7,31 @@ export default {
     if (path === '/api/links') {
       const method = request.method;
 
-      // 1. Zabezpečení proti zneužití (In-Memory Rate Limiting pro POST)
+      // 1. Zabezpečení proti zneužití (Rate Limiting)
       if (method === 'POST') {
         const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
-        const now = Date.now();
-        
-        // Vyčištění starých záznamů z paměti občas
-        if (rateLimitCache.size > 10000) rateLimitCache.clear();
+        const rateLimitKey = `rl_${clientIp}`;
 
-        let clientRecord = rateLimitCache.get(clientIp);
-        if (!clientRecord) {
-          clientRecord = { count: 0, resetTime: now + 10000 }; // Okno 10 sekund
-        }
+        try {
+          const currentData = await env.SHORTER_KV.get(rateLimitKey);
+          let count = currentData ? parseInt(currentData) : 0;
 
-        if (now > clientRecord.resetTime) {
-          clientRecord.count = 0;
-          clientRecord.resetTime = now + 10000;
-        }
+          if (count >= 5) {
+            return new Response(JSON.stringify({ error: "Příliš mnoho požadavků. Zkuste to za chvíli." }), {
+              status: 429,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
 
-        clientRecord.count++;
-        rateLimitCache.set(clientIp, clientRecord);
-
-        // Pokud odešle víc než 5 požadavků za 10 sekund
-        if (clientRecord.count > 5) {
-          return new Response(JSON.stringify({ error: "Příliš mnoho požadavků. Zkuste to prosím za chvíli." }), {
-            status: 429,
-            headers: { 'Content-Type': 'application/json' }
-          });
-        }
+          await env.SHORTER_KV.put(rateLimitKey, (count + 1).toString(), { expirationTtl: 15 });
+        } catch (e) {}
       }
 
       // 2. Autentifikace pro administrátorské operace
       const authHeader = request.headers.get('Authorization');
       const isAdminAuthenticated = authHeader === `Bearer ${env.ADMIN_PASSWORD}`;
 
-      // GET: Získání všech odkazů (vyžaduje admin heslo)
+      // GET: Získání všech odkazů
       if (method === 'GET') {
         if (!isAdminAuthenticated) {
           return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -56,7 +43,7 @@ export default {
         const list = await env.SHORTER_KV.list();
         const links = {};
         for (const key of list.keys) {
-          if (key.name.startsWith('rate_limit_')) continue;
+          if (key.name.startsWith('rl_')) continue;
           
           const val = await env.SHORTER_KV.get(key.name);
           try {
@@ -83,7 +70,7 @@ export default {
             });
           }
 
-          // Validace schématu URL (ochrana proti javascript:, data: atd.)
+          // Validace schématu URL
           let parsedUrl;
           try {
             parsedUrl = new URL(targetUrl);
@@ -147,7 +134,7 @@ export default {
         if (!isAdminAuthenticated) {
           return new Response(JSON.stringify({ error: 'Unauthorized' }), {
             status: 403,
-            headers: { 'Content-Type': 'Application/json' }
+            headers: { 'Content-Type': 'application/json' }
           });
         }
 
@@ -167,7 +154,7 @@ export default {
       }
     }
 
-    // --- PŘESMĚROVÁNÍ KLASICKÝCH ODKAZŮ ---
+    // --- PŘESMĚROVÁNÍ KLASICKÝch ODKAZŮ ---
     const alias = path.substring(1);
     if (alias && !path.startsWith('/assets/')) {
       const dataStr = await env.SHORTER_KV.get(alias);
@@ -179,7 +166,8 @@ export default {
           const parsed = JSON.parse(dataStr);
           targetUrl = parsed.url;
           clicks = (parsed.clicks || 0) + 1;
-          parsed.clicks = clicks;
+          parsed.clicks = parsed.clicks || 0;
+          parsed.clicks++;
           
           ctx.waitUntil(env.SHORTER_KV.put(alias, JSON.stringify(parsed)));
         } catch (e) {
